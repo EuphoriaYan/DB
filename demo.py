@@ -40,7 +40,14 @@ def main():
     experiment_args.update(cmd=args)
     experiment = Configurable.construct_class_from_config(experiment_args)
 
-    Demo(experiment, experiment_args, cmd=args).inference(args['image_path'], args['visualize'])
+    demo_handler = Demo(experiment, experiment_args, cmd=args)
+
+    if os.path.isdir(args['image_path']):
+        for img in os.listdir(args['image_path']):
+            demo_handler.inference(os.path.join(args['image_path'], img), args['visualize']
+            )
+    else:
+        demo_handler.inference(args['image_path'], args['visualize'])
 
 
 class Demo:
@@ -52,6 +59,10 @@ class Demo:
         model_saver = experiment.train.model_saver
         self.structure = experiment.structure
         self.model_path = self.args['resume']
+        self.init_torch_tensor()
+        self.model = self.init_model()
+        self.resume(self.model, self.model_path)
+        self.model.eval()
 
     def init_torch_tensor(self):
         # Use gpu or not
@@ -123,18 +134,14 @@ class Demo:
                         res.write(result + ',' + str(score) + "\n")
         
     def inference(self, image_path, visualize=False):
-        self.init_torch_tensor()
-        model = self.init_model()
-        self.resume(model, self.model_path)
-        all_matircs = {}
-        model.eval()
+        # all_matircs = {}
         batch = dict()
         batch['filename'] = [image_path]
         img, original_shape = self.load_image(image_path)
         batch['shape'] = [original_shape]
         with torch.no_grad():
             batch['image'] = img
-            pred = model.forward(batch, training=False)
+            pred = self.model.forward(batch, training=False)
             output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args['polygon']) 
             if not os.path.isdir(self.args['result_dir']):
                 os.mkdir(self.args['result_dir'])
