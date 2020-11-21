@@ -76,10 +76,10 @@ class MakeSimpleDetectionData(Configurable):
 
         regions = skimage.measure.regionprops(label_map)
         regions_coords = [
-            region.coords[:, ::-1] for region in regions
-        ] + [
-            np.zeros((0, 2), 'int32')
-        ] * (len(polys) - len(regions))
+                             region.coords[:, ::-1] for region in regions
+                         ] + [
+                             np.zeros((0, 2), 'int32')
+                         ] * (len(polys) - len(regions))
 
         return regions_coords
 

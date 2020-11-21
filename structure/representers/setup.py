@@ -2,7 +2,8 @@
 from distutils.core import setup, Extension
 from Cython.Build import cythonize
 import numpy
-setup(ext_modules = cythonize(Extension(
+
+setup(ext_modules=cythonize(Extension(
     'boxes_from_map',
     sources=['boxes_from_map.pyx'],
     language='c',

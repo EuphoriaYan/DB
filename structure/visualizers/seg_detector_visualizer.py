@@ -39,7 +39,6 @@ class SegDetectorVisualizer(Configurable):
             pred_image = pred_image.astype(np.uint8)
         return pred_image
 
-
     def single_visualize(self, batch, index, boxes, pred):
         image = batch['image'][index]
         polygons = batch['polygons'][index]
@@ -65,7 +64,7 @@ class SegDetectorVisualizer(Configurable):
             box = np.array(box).astype(np.int32).reshape(-1, 2)
             cv2.polylines(pred_canvas, [box], True, (0, 255, 0), 2)
             if isinstance(pred, dict) and 'thresh_binary' in pred:
-                cv2.polylines(thresh_binary, [box], True, (0, 255, 0), 1) 
+                cv2.polylines(thresh_binary, [box], True, (0, 255, 0), 1)
 
         if self.eager_show:
             webcv2.imshow(filename + ' output', cv2.resize(pred_canvas, (1024, 1024)))
@@ -84,9 +83,9 @@ class SegDetectorVisualizer(Configurable):
                 }
             else:
                 return {
-                filename + '_output': pred_canvas,
-                # filename + '_pred': thresh_binary
-            }
+                    filename + '_output': pred_canvas,
+                    # filename + '_pred': thresh_binary
+                }
 
     def demo_visualize(self, image_path, output):
         boxes, _ = output
@@ -101,4 +100,3 @@ class SegDetectorVisualizer(Configurable):
             cv2.polylines(pred_canvas, [box], True, (0, 0, 255), 3)
 
         return pred_canvas
-

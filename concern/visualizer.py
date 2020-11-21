@@ -9,6 +9,7 @@ import torch
 import numpy as np
 import cv2
 
+
 class Visualize:
     @classmethod
     def visualize(cls, x):
@@ -43,10 +44,10 @@ class Visualize:
             points = points * image.shape[:2][::-1]
         for i in range(points.shape[0]):
             color = np.random.randint(
-                0, 255, (3, ), dtype=np.uint8).astype(np.float)
+                0, 255, (3,), dtype=np.uint8).astype(np.float)
             image = cv2.circle(image,
                                tuple(points[i].astype(np.int32).tolist()),
-                               radius, color, thickness=radius//2)
+                               radius, color, thickness=radius // 2)
         return image
 
     @classmethod
@@ -61,7 +62,7 @@ class Visualize:
 
         for c in range(0, x.shape[-1]):
             color = np.random.randint(
-                0, 255, (3, ), dtype=np.uint8).astype(np.float)
+                0, 255, (3,), dtype=np.uint8).astype(np.float)
             canvas += np.tile(x[:, :, c], (3, 1, 1)
                               ).swapaxes(0, 2).swapaxes(1, 0) * color
 
@@ -73,7 +74,7 @@ class Visualize:
         canvas = np.zeros((x.shape[0], x.shape[1], 3), dtype=np.uint8)
         for c in range(int(x.max())):
             color = np.random.randint(
-                0, 255, (3, ), dtype=np.uint8).astype(np.float)
+                0, 255, (3,), dtype=np.uint8).astype(np.float)
             canvas[np.where(x == c)] = color
         return canvas
 
@@ -87,7 +88,8 @@ class Visualize:
         while i < w:
             j = 0
             while j < h:
-                canvas = cv2.circle(canvas, (int(x[i, j] * w + 0.5), int(y[i, j] * h + 0.5)), radius=max(stride//4, 1), color=color, thickness=stride//8)
+                canvas = cv2.circle(canvas, (int(x[i, j] * w + 0.5), int(y[i, j] * h + 0.5)),
+                                    radius=max(stride // 4, 1), color=color, thickness=stride // 8)
                 j += stride
             i += stride
         return canvas

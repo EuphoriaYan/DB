@@ -10,6 +10,7 @@ class TextLines:
               poly: the quadrangle-box of the text instance.
               charboxes: the quadrangle-box of the characters inside the corresponding text instance.
     '''
+
     def __init__(self, lines, with_charboxes=True):
         self.texts = []
         quads = []
@@ -25,7 +26,7 @@ class TextLines:
 
     def __iter__(self):
         for text, quad in zip(self.texts, self.quads):
-            yield(text, quad)
+            yield (text, quad)
 
     @property
     def rects(self):

@@ -1,11 +1,11 @@
 import torch.nn as nn
 import math
 import torch.utils.model_zoo as model_zoo
+
 BatchNorm2d = nn.BatchNorm2d
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152']
-
 
 model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
@@ -176,7 +176,7 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, layers, num_classes=1000, 
+    def __init__(self, block, layers, num_classes=1000,
                  dcn=None, stage_with_dcn=(False, False, False, False)):
         self.dcn = dcn
         self.stage_with_dcn = stage_with_dcn
@@ -196,8 +196,8 @@ class ResNet(nn.Module):
             block, 512, layers[3], stride=2, dcn=dcn)
         self.avgpool = nn.AvgPool2d(7, stride=1)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
-    
-        self.smooth = nn.Conv2d(2048, 256, kernel_size=1, stride=1, padding=1)    
+
+        self.smooth = nn.Conv2d(2048, 256, kernel_size=1, stride=1, padding=1)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -255,16 +255,17 @@ def resnet18(pretrained=True, **kwargs):
             model_urls['resnet18']), strict=False)
     return model
 
+
 def deformable_resnet18(pretrained=True, **kwargs):
     """Constructs a ResNet-18 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet(BasicBlock, [2, 2, 2, 2],
-                    dcn=dict(modulated=True,
+                   dcn=dict(modulated=True,
                             deformable_groups=1,
                             fallback_on_stride=False),
-                    stage_with_dcn=[False, True, True, True], **kwargs)
+                   stage_with_dcn=[False, True, True, True], **kwargs)
     if pretrained:
         model.load_state_dict(model_zoo.load_url(
             model_urls['resnet18']), strict=False)

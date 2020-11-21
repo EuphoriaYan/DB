@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class PSS_Loss(nn.Module):
 
     def __init__(self, cls_loss):
@@ -10,9 +11,9 @@ class PSS_Loss(nn.Module):
         self.criterion = eval('self.' + cls_loss + '_loss')
 
     def dice_loss(self, pred, gt, m):
-        intersection = torch.sum(pred*gt*m)
-        union = torch.sum(pred*m) + torch.sum(gt*m) + self.eps
-        loss = 1 - 2.0*intersection/union
+        intersection = torch.sum(pred * gt * m)
+        union = torch.sum(pred * m) + torch.sum(gt * m) + self.eps
+        loss = 1 - 2.0 * intersection / union
         if loss > 1:
             print(intersection, union)
         return loss
@@ -22,10 +23,10 @@ class PSS_Loss(nn.Module):
         neg_index = (gt == 0) * (m == 1)
         pos_num = pos_index.float().sum().item()
         neg_num = neg_index.float().sum().item()
-        if pos_num == 0 or neg_num < pos_num*3.0:
+        if pos_num == 0 or neg_num < pos_num * 3.0:
             return self.dice_loss(pred, gt, m)
         else:
-            neg_num = int(pos_num*3)
+            neg_num = int(pos_num * 3)
             pos_pred = pred[pos_index]
             neg_pred = pred[neg_index]
             neg_sort, _ = torch.sort(neg_pred, descending=True)
@@ -46,11 +47,11 @@ class PSS_Loss(nn.Module):
     def focal_loss(self, pred, gt, m, alpha=0.25, gamma=0.6):
         pos_mask = (gt == 1).float()
         neg_mask = (gt == 0).float()
-        mask = alpha*pos_mask * \
-            torch.pow(1-pred.data, gamma)+(1-alpha) * \
-            neg_mask*torch.pow(pred.data, gamma)
+        mask = alpha * pos_mask * \
+               torch.pow(1 - pred.data, gamma) + (1 - alpha) * \
+               neg_mask * torch.pow(pred.data, gamma)
         l = F.binary_cross_entropy(pred, gt, weight=mask, reduction='none')
-        loss = torch.sum(l*m)/(self.eps+m.sum())
+        loss = torch.sum(l * m) / (self.eps + m.sum())
         loss *= 10
         return loss
 
@@ -67,18 +68,18 @@ class PSS_Loss(nn.Module):
         return loss
 
     def wbce_loss(self, pred, gt, m):
-        pos_mask = (gt == 1).float()*m
-        neg_mask = (gt == 0).float()*m
+        pos_mask = (gt == 1).float() * m
+        neg_mask = (gt == 0).float() * m
         # mask=(pos_mask*neg_mask.sum()+neg_mask*pos_mask.sum())/m.sum()
         # loss=torch.sum(l)
         mask = pos_mask * neg_mask.sum() / pos_mask.sum() + neg_mask
         l = F.binary_cross_entropy(pred, gt, weight=mask, reduction='none')
-        loss = torch.sum(l)/(m.sum()+self.eps)
+        loss = torch.sum(l) / (m.sum() + self.eps)
         return loss
 
     def bce_loss(self, pred, gt, m):
         l = F.binary_cross_entropy(pred, gt, weight=m, reduction='sum')
-        loss = l/(m.sum()+self.eps)
+        loss = l / (m.sum() + self.eps)
         return loss
 
     def dice_bce_loss(self, pred, gt, m):

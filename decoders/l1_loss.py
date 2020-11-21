@@ -32,10 +32,10 @@ class BalanceL1Loss(nn.Module):
         negative = loss * (1 - mask)
         positive_count = int(mask.sum())
         negative_count = min(
-                int((1 - mask).sum()),
-                int(positive_count * self.negative_ratio))
+            int((1 - mask).sum()),
+            int(positive_count * self.negative_ratio))
         negative_loss, _ = torch.topk(negative.view(-1), negative_count)
         negative_loss = negative_loss.sum() / negative_count
         positive_loss = positive.sum() / positive_count
-        return positive_loss + negative_loss,\
-            dict(l1_loss=positive_loss, nge_l1_loss=negative_loss)
+        return positive_loss + negative_loss, \
+               dict(l1_loss=positive_loss, nge_l1_loss=negative_loss)

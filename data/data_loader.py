@@ -42,7 +42,7 @@ class DataLoader(Configurable, torch.utils.data.DataLoader):
                 self.dataset, shuffle=self.shuffle,
                 num_replicas=cmd['num_gpus'])
             batch_sampler = BatchSampler(
-                sampler, self.batch_size//cmd['num_gpus'], False)
+                sampler, self.batch_size // cmd['num_gpus'], False)
             torch.utils.data.DataLoader.__init__(
                 self, self.dataset, batch_sampler=batch_sampler,
                 num_workers=self.num_workers, pin_memory=False,
@@ -63,6 +63,7 @@ class SuccessiveRandomSampler(Sampler):
     Args:
         dataset: Dataset used for sampling.
     '''
+
     def __init__(self, dataset):
         self.dataset = dataset
         self.epoch = 0
@@ -171,6 +172,7 @@ class InfiniteOrderedSampler(Sampler):
                     idx = torch.randperm(n).tolist()
                 yield idx[cnt % n]
                 cnt += 1
+
         return wrapper()
 
     def __len__(self):
@@ -213,6 +215,7 @@ class RandomSampleSampler(Sampler):
         def wrapper():
             for i in range(self.size):
                 yield bisect.bisect(self.cum_prob, torch.rand(1)[0], hi=len(self.data_source) - 1)
+
         return wrapper()
 
     def __len__(self):
@@ -239,7 +242,7 @@ class RandomSampleDataLoader(Configurable, torch.utils.data.DataLoader):
 
         dataset = ConcatDataset(self.datasets)
         probs = np.concatenate(probs)
-        assert(len(dataset) == len(probs))
+        assert (len(dataset) == len(probs))
 
         sampler = RandomSampleSampler(dataset, probs, self.size)
 

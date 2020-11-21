@@ -20,6 +20,7 @@ from training.optimizer_scheduler import OptimizerScheduler
 from concern.config import Configurable, Config
 import time
 
+
 def main():
     parser = argparse.ArgumentParser(description='Text Recognition Training')
     parser.add_argument('exp', type=str)
@@ -118,21 +119,21 @@ class Eval:
         self.logger.info("Resumed from " + path)
 
     def report_speed(self, model, batch, times=100):
-        data = {k: v[0:1]for k, v in batch.items()}
-        if  torch.cuda.is_available():
+        data = {k: v[0:1] for k, v in batch.items()}
+        if torch.cuda.is_available():
             torch.cuda.synchronize()
-        start = time.time() 
+        start = time.time()
         for _ in range(times):
             pred = model.forward(data)
         for _ in range(times):
-            output = self.structure.representer.represent(batch, pred, is_output_polygon=False) 
+            output = self.structure.representer.represent(batch, pred, is_output_polygon=False)
         time_cost = (time.time() - start) / times
         self.logger.info('Params: %s, Inference speed: %fms, FPS: %f' % (
             str(sum(p.numel() for p in model.parameters() if p.requires_grad)),
             time_cost * 1000, 1 / time_cost))
-        
+
         return time_cost
-        
+
     def format_output(self, batch, output):
         batch_boxes, batch_scores = output
         for index in range(batch['image'].size(0)):
@@ -155,10 +156,10 @@ class Eval:
                         score = scores[i]
                         if score < self.args['box_thresh']:
                             continue
-                        box = boxes[i,:,:].reshape(-1).tolist()
+                        box = boxes[i, :, :].reshape(-1).tolist()
                         result = ",".join([str(int(x)) for x in box])
                         res.write(result + ',' + str(score) + "\n")
-        
+
     def eval(self, visualize=False):
         self.init_torch_tensor()
         model = self.init_model()
@@ -174,11 +175,13 @@ class Eval:
                         time_cost = self.report_speed(model, batch, times=50)
                         continue
                     pred = model.forward(batch, training=False)
-                    output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args['polygon']) 
+                    output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args['polygon'])
                     if not os.path.isdir(self.args['result_dir']):
                         os.mkdir(self.args['result_dir'])
                     self.format_output(batch, output)
-                    raw_metric = self.structure.measurer.validate_measure(batch, output, is_output_polygon=self.args['polygon'], box_thresh=self.args['box_thresh'])
+                    raw_metric = self.structure.measurer.validate_measure(batch, output,
+                                                                          is_output_polygon=self.args['polygon'],
+                                                                          box_thresh=self.args['box_thresh'])
                     raw_metrics.append(raw_metric)
 
                     if visualize and self.structure.visualizer:
@@ -188,6 +191,7 @@ class Eval:
                 metrics = self.structure.measurer.gather_measure(raw_metrics, self.logger)
                 for key, metric in metrics.items():
                     self.logger.info('%s : %f (%d)' % (key, metric.avg, metric.count))
+
 
 if __name__ == '__main__':
     main()

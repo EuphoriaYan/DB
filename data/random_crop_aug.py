@@ -37,19 +37,19 @@ def random_crop(image, boxes, tags, crop_size, max_tries, w_axis, h_axis, min_cr
         xx = np.random.choice(w_axis, size=2)
         xmin = np.min(xx)
         xmax = np.max(xx)
-        xmin = np.clip(xmin, 0, w-1)
-        xmax = np.clip(xmax, 0, w-1)
+        xmin = np.clip(xmin, 0, w - 1)
+        xmax = np.clip(xmax, 0, w - 1)
         yy = np.random.choice(h_axis, size=2)
         ymin = np.min(yy)
         ymax = np.max(yy)
-        ymin = np.clip(ymin, 0, h-1)
-        ymax = np.clip(ymax, 0, h-1)
-        if xmax - xmin < min_crop_side_ratio*w or ymax - ymin < min_crop_side_ratio*h:
+        ymin = np.clip(ymin, 0, h - 1)
+        ymax = np.clip(ymax, 0, h - 1)
+        if xmax - xmin < min_crop_side_ratio * w or ymax - ymin < min_crop_side_ratio * h:
             # area too small
             continue
         if boxes.shape[0] != 0:
             box_axis_in_area = (boxes[:, :, 0] >= xmin) & (boxes[:, :, 0] <= xmax) \
-                & (boxes[:, :, 1] >= ymin) & (boxes[:, :, 1] <= ymax)
+                               & (boxes[:, :, 1] >= ymin) & (boxes[:, :, 1] <= ymax)
             selected_boxes = np.where(np.sum(box_axis_in_area, axis=1) == 4)[0]
             if len(selected_boxes) > 0:
                 if (tags[selected_boxes] == False).astype(np.float).sum() > 0:
@@ -60,7 +60,7 @@ def random_crop(image, boxes, tags, crop_size, max_tries, w_axis, h_axis, min_cr
     if i == max_tries - 1:
         return regular_resize(image, boxes, tags, crop_size)
 
-    image = image[ymin:ymax+1, xmin:xmax+1, :]
+    image = image[ymin:ymax + 1, xmin:xmax + 1, :]
     boxes = boxes[selected_boxes]
     tags = tags[selected_boxes]
     boxes[:, :, 0] -= xmin
@@ -85,7 +85,7 @@ def regular_crop(image, boxes, tags, crop_size, max_tries, w_array, h_array, w_a
             ymax = ymin + crop_size
             if boxes.shape[0] != 0:
                 box_axis_in_area = (boxes[:, :, 0] >= xmin) & (boxes[:, :, 0] <= xmax) \
-                    & (boxes[:, :, 1] >= ymin) & (boxes[:, :, 1] <= ymax)
+                                   & (boxes[:, :, 1] >= ymin) & (boxes[:, :, 1] <= ymax)
                 selected_boxes = np.where(
                     np.sum(box_axis_in_area, axis=1) == 4)[0]
                 if len(selected_boxes) > 0:
@@ -94,7 +94,7 @@ def regular_crop(image, boxes, tags, crop_size, max_tries, w_array, h_array, w_a
             else:
                 selected_boxes = []
                 break
-        if i == max_tries-1:
+        if i == max_tries - 1:
             return random_crop(image, boxes, tags, crop_size, max_tries, w_axis, h_axis, min_crop_side_ratio)
         image = image[ymin:ymax, xmin:xmax, :]
         boxes = boxes[selected_boxes]
@@ -133,9 +133,11 @@ class RandomCrop(object):
             return regular_resize(image, boxes, tags, self.crop_size)
 
         if h <= self.crop_size + 1 or w <= self.crop_size + 1:
-            return random_crop(image, boxes, tags, self.crop_size, self.max_tries, w_axis, h_axis, self.min_crop_side_ratio)
+            return random_crop(image, boxes, tags, self.crop_size, self.max_tries, w_axis, h_axis,
+                               self.min_crop_side_ratio)
         else:
-            return regular_crop(image, boxes, tags, self.crop_size, self.max_tries, w_array, h_array, w_axis, h_axis, self.min_crop_side_ratio)
+            return regular_crop(image, boxes, tags, self.crop_size, self.max_tries, w_array, h_array, w_axis, h_axis,
+                                self.min_crop_side_ratio)
 
 
 class RandomCropAug(Configurable):

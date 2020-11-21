@@ -25,7 +25,7 @@ class QuadMeasurer(Configurable):
         ignore_tags_batch = batch['ignore_tags']
         pred_polygons_batch = np.array(output[0])
         pred_scores_batch = np.array(output[1])
-        for polygons, pred_polygons, pred_scores, ignore_tags in\
+        for polygons, pred_polygons, pred_scores, ignore_tags in \
                 zip(gt_polyons_batch, pred_polygons_batch, pred_scores_batch, ignore_tags_batch):
             gt = [dict(points=polygons[i], ignore=ignore_tags[i])
                   for i in range(len(polygons))]
@@ -38,7 +38,7 @@ class QuadMeasurer(Configurable):
                 for i in range(pred_polygons.shape[0]):
                     if pred_scores[i] >= box_thresh:
                         # print(pred_polygons[i,:,:].tolist())
-                        pred.append(dict(points=pred_polygons[i,:,:].tolist()))
+                        pred.append(dict(points=pred_polygons[i, :, :].tolist()))
                 # pred = [dict(points=pred_polygons[i,:,:].tolist()) if pred_scores[i] >= box_thresh for i in range(pred_polygons.shape[0])]
             results.append(self.evaluator.evaluate_image(gt, pred))
         return results
@@ -47,8 +47,8 @@ class QuadMeasurer(Configurable):
         return self.measure(batch, output, is_output_polygon, box_thresh)
 
     def evaluate_measure(self, batch, output):
-        return self.measure(batch, output),\
-            np.linspace(0, batch['image'].shape[0]).tolist()
+        return self.measure(batch, output), \
+               np.linspace(0, batch['image'].shape[0]).tolist()
 
     def gather_measure(self, raw_metrics, logger: Logger):
         raw_metrics = [image_metrics
@@ -63,8 +63,8 @@ class QuadMeasurer(Configurable):
 
         precision.update(result['precision'], n=len(raw_metrics))
         recall.update(result['recall'], n=len(raw_metrics))
-        fmeasure_score = 2 * precision.val * recall.val /\
-            (precision.val + recall.val + 1e-8)
+        fmeasure_score = 2 * precision.val * recall.val / \
+                         (precision.val + recall.val + 1e-8)
         fmeasure.update(fmeasure_score)
 
         return {

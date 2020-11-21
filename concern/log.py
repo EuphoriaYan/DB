@@ -164,7 +164,7 @@ class Logger(Configurable):
                 result = image
             else:
                 result = np.concatenate([result, image], 0)
-        cv2.imwrite(os.path.join(self.vis_dir(), name+'.jpg'), result)
+        cv2.imwrite(os.path.join(self.vis_dir(), name + '.jpg'), result)
 
     def vis_dir(self):
         vis_dir = os.path.join(self.log_dir, self.VISUALIZE_NAME)
@@ -182,7 +182,7 @@ class Logger(Configurable):
                 actual_width = min(width, max_size)
                 actual_height = int(round(actual_width * height / width))
                 image = cv2.resize(image, (actual_width, actual_height))
-            cv2.imwrite(os.path.join(self.vis_dir(), file_name+'.jpg'), image)
+            cv2.imwrite(os.path.join(self.vis_dir(), file_name + '.jpg'), image)
 
     def __getattr__(self, name):
         message_levels = set(['debug', 'info', 'warning', 'error', 'critical'])

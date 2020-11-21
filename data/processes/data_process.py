@@ -21,5 +21,5 @@ class DataProcess(Configurable):
             xmin, xmax = shrink_rect(xmin, xmax, shrink)
             ymin, ymax = shrink_rect(ymin, ymax, shrink)
 
-        canvas[int(ymin+0.5):int(ymax+0.5)+1, int(xmin+0.5):int(xmax+0.5)+1] = value
+        canvas[int(ymin + 0.5):int(ymax + 0.5) + 1, int(xmin + 0.5):int(xmax + 0.5) + 1] = value
         return canvas

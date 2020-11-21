@@ -52,7 +52,7 @@ class MakeCenterDistanceMap(DataProcess):
 
         polygon_shape = Polygon(polygon)
         distance = polygon_shape.area * \
-            (1 - np.power(self.expansion_ratio, 2)) / polygon_shape.length
+                   (1 - np.power(self.expansion_ratio, 2)) / polygon_shape.length
         subject = [tuple(l) for l in polygon]
         padding = pyclipper.PyclipperOffset()
         padding.AddPath(subject, pyclipper.JT_ROUND,
@@ -60,9 +60,6 @@ class MakeCenterDistanceMap(DataProcess):
         padded_polygon = np.array(padding.Execute(distance)[0])
         return padded_polygon
         cv2.fillPoly(mask, [padded_polygon.astype(np.int32)], 1.0)
-
-
-
 
     def distance(self, xs, ys, point):
         '''
@@ -80,7 +77,7 @@ class MakeCenterDistanceMap(DataProcess):
             point_1[0] - point_2[0]) + np.square(point_1[1] - point_2[1])
 
         cosin = (square_distance - square_distance_1 - square_distance_2) / \
-            (2 * np.sqrt(square_distance_1 * square_distance_2))
+                (2 * np.sqrt(square_distance_1 * square_distance_2))
         square_sin = 1 - np.square(cosin)
         square_sin = np.nan_to_num(square_sin)
         result = np.sqrt(square_distance_1 * square_distance_2 *
@@ -101,5 +98,3 @@ class MakeCenterDistanceMap(DataProcess):
         cv2.line(result, tuple(ex_point_2), tuple(point_2),
                  4096.0, 1, lineType=cv2.LINE_AA, shift=0)
         return ex_point_1, ex_point_2
-
-

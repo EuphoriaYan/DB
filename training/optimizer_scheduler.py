@@ -16,7 +16,7 @@ class OptimizerScheduler(Configurable):
 
     def create_optimizer(self, parameters):
         optimizer = getattr(torch.optim, self.optimizer)(
-                parameters, **self.optimizer_args)
+            parameters, **self.optimizer_args)
         if hasattr(self.learning_rate, 'prepare'):
             self.learning_rate.prepare(optimizer)
         return optimizer

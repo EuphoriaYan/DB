@@ -48,9 +48,9 @@ class AugmentData(DataProcess):
         filename = data.get('filename', data.get('data_id', ''))
         data.update(filename=filename, shape=shape[:2])
         if not self.only_resize:
-            data['is_training'] = True 
+            data['is_training'] = True
         else:
-            data['is_training'] = False 
+            data['is_training'] = False
         return data
 
 
@@ -79,4 +79,3 @@ class AugmentDetectionData(AugmentData):
             [imgaug.KeypointsOnImage(keypoints, shape=img_shape)])[0].keypoints
         poly = [(p.x, p.y) for p in keypoints]
         return poly
-

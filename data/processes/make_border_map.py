@@ -50,7 +50,7 @@ class MakeBorderMap(DataProcess):
 
         polygon_shape = Polygon(polygon)
         distance = polygon_shape.area * \
-            (1 - np.power(self.shrink_ratio, 2)) / polygon_shape.length
+                   (1 - np.power(self.shrink_ratio, 2)) / polygon_shape.length
         subject = [tuple(l) for l in polygon]
         padding = pyclipper.PyclipperOffset()
         padding.AddPath(subject, pyclipper.JT_ROUND,
@@ -87,8 +87,8 @@ class MakeBorderMap(DataProcess):
         ymax_valid = min(max(0, ymax), canvas.shape[0] - 1)
         canvas[ymin_valid:ymax_valid + 1, xmin_valid:xmax_valid + 1] = np.fmax(
             1 - distance_map[
-                ymin_valid-ymin:ymax_valid-ymax+height,
-                xmin_valid-xmin:xmax_valid-xmax+width],
+                ymin_valid - ymin:ymax_valid - ymax + height,
+                xmin_valid - xmin:xmax_valid - xmax + width],
             canvas[ymin_valid:ymax_valid + 1, xmin_valid:xmax_valid + 1])
 
     def distance(self, xs, ys, point_1, point_2):
@@ -107,7 +107,7 @@ class MakeBorderMap(DataProcess):
             point_1[0] - point_2[0]) + np.square(point_1[1] - point_2[1])
 
         cosin = (square_distance - square_distance_1 - square_distance_2) / \
-            (2 * np.sqrt(square_distance_1 * square_distance_2))
+                (2 * np.sqrt(square_distance_1 * square_distance_2))
         square_sin = 1 - np.square(cosin)
         square_sin = np.nan_to_num(square_sin)
         result = np.sqrt(square_distance_1 * square_distance_2 *
@@ -128,4 +128,3 @@ class MakeBorderMap(DataProcess):
         cv2.line(result, tuple(ex_point_2), tuple(point_2),
                  4096.0, 1, lineType=cv2.LINE_AA, shift=0)
         return ex_point_1, ex_point_2
-

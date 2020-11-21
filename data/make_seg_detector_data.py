@@ -46,7 +46,7 @@ class MakeSegDetectorData(Configurable):
             else:
                 polygon_shape = Polygon(polygon)
                 distance = polygon_shape.area * \
-                    (1 - np.power(self.shrink_ratio, 2)) / polygon_shape.length
+                           (1 - np.power(self.shrink_ratio, 2)) / polygon_shape.length
                 subject = [tuple(l) for l in polygons[i]]
                 padding = pyclipper.PyclipperOffset()
                 padding.AddPath(subject, pyclipper.JT_ROUND,

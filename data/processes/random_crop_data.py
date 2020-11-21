@@ -72,7 +72,7 @@ class RandomCropData(DataProcess):
         regions = []
         min_axis = 0
         for i in range(1, axis.shape[0]):
-            if axis[i] != axis[i-1] + 1:
+            if axis[i] != axis[i - 1] + 1:
                 region = axis[min_axis:i]
                 min_axis = i
                 regions.append(region)

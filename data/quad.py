@@ -48,7 +48,6 @@ class Quad:
             else:
                 yield self.points[i]
 
-
     def rect(self):
         if self._rect is None:
             self._rect = self.rectify()

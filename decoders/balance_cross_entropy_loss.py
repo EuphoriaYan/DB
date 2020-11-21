@@ -41,15 +41,15 @@ class BalanceCrossEntropyLoss(nn.Module):
         negative = ((1 - gt) * mask).byte()
         positive_count = int(positive.float().sum())
         negative_count = min(int(negative.float().sum()),
-                            int(positive_count * self.negative_ratio))
+                             int(positive_count * self.negative_ratio))
         loss = nn.functional.binary_cross_entropy(
             pred, gt, reduction='none')[:, 0, :, :]
         positive_loss = loss * positive.float()
         negative_loss = loss * negative.float()
         negative_loss, _ = torch.topk(negative_loss.view(-1), negative_count)
 
-        balance_loss = (positive_loss.sum() + negative_loss.sum()) /\
-            (positive_count + negative_count + self.eps)
+        balance_loss = (positive_loss.sum() + negative_loss.sum()) / \
+                       (positive_count + negative_count + self.eps)
 
         if return_origin:
             return balance_loss, loss

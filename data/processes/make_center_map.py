@@ -30,13 +30,13 @@ class MakeCenterMap(DataProcess):
         mu_x = points[:, 0][:, np.newaxis, np.newaxis]
         mu_y = points[:, 1][:, np.newaxis, np.newaxis]
         mask_is_zero = ((mu_x == 0) + (mu_y == 0)) == 0
-        result = np.reciprocal(2 * np.pi * width / self.sigma_ratio * height / self.sigma_ratio)\
-            * np.exp(- 0.5 * (np.square((index_x - mu_x) / width * self.sigma_ratio) +
-                              np.square((index_y - mu_y) / height * self.sigma_ratio)))
+        result = np.reciprocal(2 * np.pi * width / self.sigma_ratio * height / self.sigma_ratio) \
+                 * np.exp(- 0.5 * (np.square((index_x - mu_x) / width * self.sigma_ratio) +
+                                   np.square((index_y - mu_y) / height * self.sigma_ratio)))
 
         result = result / \
-            np.maximum(result.max(axis=1, keepdims=True).max(
-                axis=2, keepdims=True), np.finfo(np.float32).eps)
+                 np.maximum(result.max(axis=1, keepdims=True).max(
+                     axis=2, keepdims=True), np.finfo(np.float32).eps)
         result = result * mask_is_zero
         return result.astype(np.float32)
 

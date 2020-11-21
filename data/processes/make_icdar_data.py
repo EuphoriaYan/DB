@@ -48,6 +48,7 @@ class MakeICDARData(DataProcess):
                 color = (0, 0, 255)  # depict polygons in red
 
             cv2.polylines(image, [polygon], True, color, 1)
+
     polylines = staticmethod(draw_polygons)
 
 
@@ -66,4 +67,3 @@ class ICDARCollectFN(Configurable):
                 data_dict[k].append(v)
         data_dict['image'] = torch.stack(data_dict['image'], 0)
         return data_dict
-

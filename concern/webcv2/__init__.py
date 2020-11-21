@@ -14,6 +14,7 @@ class WebCV2:
         else:
             raise AttributeError
 
-import sys
-sys.modules[__name__] = WebCV2()
 
+import sys
+
+sys.modules[__name__] = WebCV2()

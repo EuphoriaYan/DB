@@ -3,6 +3,8 @@ import argparse
 import time
 
 import torch
+import torch.backends.cudnn
+import torch.distributed
 import yaml
 
 from trainer import Trainer
@@ -25,8 +27,10 @@ def main():
     parser.add_argument('--resume', type=str, help='Resume from checkpoint')
     parser.add_argument('--epochs', type=int, help='Number of training epochs')
     parser.add_argument('--num_workers', type=int, help='Number of dataloader workers')
-    parser.add_argument('--start_iter', type=int, help='Begin counting iterations starting from this value (should be used with resume)')
-    parser.add_argument('--start_epoch', type=int, help='Begin counting epoch starting from this value (should be used with resume)')
+    parser.add_argument('--start_iter', type=int,
+                        help='Begin counting iterations starting from this value (should be used with resume)')
+    parser.add_argument('--start_epoch', type=int,
+                        help='Begin counting epoch starting from this value (should be used with resume)')
     parser.add_argument('--max_size', type=int, help='max length of label')
     parser.add_argument('--lr', type=float, help='initial learning rate')
     parser.add_argument('--optimizer', type=str, help='The optimizer want to use')
@@ -38,7 +42,8 @@ def main():
     parser.add_argument('--validate', action='store_true', dest='validate', help='Validate during training')
     parser.add_argument('--no-validate', action='store_false', dest='validate', help='Validate during training')
     parser.add_argument('--print-config-only', action='store_true', help='print config without actual training')
-    parser.add_argument('--debug', action='store_true', dest='debug', help='Run with debug mode, which hacks dataset num_samples to toy number')
+    parser.add_argument('--debug', action='store_true', dest='debug',
+                        help='Run with debug mode, which hacks dataset num_samples to toy number')
     parser.add_argument('--no-debug', action='store_false', dest='debug', help='Run without debug mode')
     parser.add_argument('--benchmark', action='store_true', dest='benchmark', help='Open cudnn benchmark mode')
     parser.add_argument('--no-benchmark', action='store_false', dest='benchmark', help='Turn cudnn benchmark mode off')
@@ -66,6 +71,6 @@ def main():
         trainer = Trainer(experiment)
         trainer.train()
 
+
 if __name__ == '__main__':
     main()
-

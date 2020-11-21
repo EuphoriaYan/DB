@@ -10,6 +10,7 @@ from hanziconv import HanziConv
 from concern.config import Configurable, State
 from data.text_lines import TextLines
 
+
 class DataIdMetaLoader(MetaLoader):
     return_dict = State(default=False)
     scan_meta = False
@@ -26,6 +27,7 @@ class DataIdMetaLoader(MetaLoader):
         if self.return_dict:
             return meta
         return meta['data_id']
+
 
 class MetaCache(Configurable):
     META_FILE = 'meta_cache.pickle'
@@ -89,4 +91,3 @@ class FileMetaCache(MetaCache):
         with open(self.storate_path(nori_path), 'wb') as writer:
             pickle.dump(meta, writer)
         return True
-        

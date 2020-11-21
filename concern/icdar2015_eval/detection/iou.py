@@ -34,7 +34,7 @@ class DetectionIoUEvaluator(object):
                     match = matchList[n]
                     if match:
                         correct += 1
-                        AP += float(correct)/(n + 1)
+                        AP += float(correct) / (n + 1)
 
                 if numGtCare > 0:
                     AP /= numGtCare
@@ -92,7 +92,7 @@ class DetectionIoUEvaluator(object):
             gtPols.append(gtPol)
             gtPolPoints.append(points)
             if dontCare:
-                gtDontCarePolsNum.append(len(gtPols)-1)
+                gtDontCarePolsNum.append(len(gtPols) - 1)
 
         evaluationLog += "GT polygons: " + str(len(gtPols)) + (" (" + str(len(
             gtDontCarePolsNum)) + " don't care)\n" if len(gtDontCarePolsNum) > 0 else "\n")
@@ -112,7 +112,7 @@ class DetectionIoUEvaluator(object):
                     pdDimensions = Polygon(detPol).area
                     precision = 0 if pdDimensions == 0 else intersected_area / pdDimensions
                     if (precision > self.area_precision_constraint):
-                        detDontCarePolsNum.append(len(detPols)-1)
+                        detDontCarePolsNum.append(len(detPols) - 1)
                         break
 
         evaluationLog += "DET polygons: " + str(len(detPols)) + (" (" + str(len(
@@ -132,7 +132,8 @@ class DetectionIoUEvaluator(object):
 
             for gtNum in range(len(gtPols)):
                 for detNum in range(len(detPols)):
-                    if gtRectMat[gtNum] == 0 and detRectMat[detNum] == 0 and gtNum not in gtDontCarePolsNum and detNum not in detDontCarePolsNum:
+                    if gtRectMat[gtNum] == 0 and detRectMat[
+                        detNum] == 0 and gtNum not in gtDontCarePolsNum and detNum not in detDontCarePolsNum:
                         if iouMat[gtNum, detNum] > self.iou_constraint:
                             gtRectMat[gtNum] = 1
                             detRectMat[detNum] = 1
@@ -140,7 +141,7 @@ class DetectionIoUEvaluator(object):
                             pairs.append({'gt': gtNum, 'det': detNum})
                             detMatchedNums.append(detNum)
                             evaluationLog += "Match GT #" + \
-                                str(gtNum) + " with Det #" + str(detNum) + "\n"
+                                             str(gtNum) + " with Det #" + str(detNum) + "\n"
 
         numGtCare = (len(gtPols) - len(gtDontCarePolsNum))
         numDetCare = (len(detPols) - len(detDontCarePolsNum))
@@ -153,7 +154,7 @@ class DetectionIoUEvaluator(object):
                 detMatched) / numDetCare
 
         hmean = 0 if (precision + recall) == 0 else 2.0 * \
-            precision * recall / (precision + recall)
+                                                    precision * recall / (precision + recall)
 
         matchedSum += detMatched
         numGlobalCareGt += numGtCare
@@ -187,11 +188,12 @@ class DetectionIoUEvaluator(object):
             matchedSum += result['detMatched']
 
         methodRecall = 0 if numGlobalCareGt == 0 else float(
-            matchedSum)/numGlobalCareGt
+            matchedSum) / numGlobalCareGt
         methodPrecision = 0 if numGlobalCareDet == 0 else float(
-            matchedSum)/numGlobalCareDet
+            matchedSum) / numGlobalCareDet
         methodHmean = 0 if methodRecall + methodPrecision == 0 else 2 * \
-            methodRecall * methodPrecision / (methodRecall + methodPrecision)
+                                                                    methodRecall * methodPrecision / (
+                                                                                methodRecall + methodPrecision)
 
         methodMetrics = {'precision': methodPrecision,
                          'recall': methodRecall, 'hmean': methodHmean}

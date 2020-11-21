@@ -53,5 +53,5 @@ class Manager:
         # self._queue = OrderedDict()
         return self._conn.recv()
 
-global_manager = Manager()
 
+global_manager = Manager()

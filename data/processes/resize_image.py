@@ -98,7 +98,7 @@ class ResizeData(_ResizeImage, DataProcess):
         charboxes = data[self.box_key]
         data[self.box_key] = charboxes.copy()
         data[self.box_key][:, :, 0] = data[self.box_key][:, :, 0] * \
-            new_width / width
+                                      new_width / width
         data[self.box_key][:, :, 1] = data[self.box_key][:, :, 1] * \
-            new_height / height
+                                      new_height / height
         return data

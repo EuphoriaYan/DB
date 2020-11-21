@@ -169,7 +169,7 @@ class Configurable(metaclass=StateMeta):
     def dump(self):
         state = {}
         state['class'] = self.__class__.__module__ + \
-            '.' + self.__class__.__name__
+                         '.' + self.__class__.__name__
         for name, value in self.states.items():
             obj = getattr(self, name)
             state[name] = self.dump_obj(obj)
@@ -188,4 +188,3 @@ class Configurable(metaclass=StateMeta):
             return {key: self.dump_obj(value) for key, value in obj.items()}
         else:
             return str(obj)
-

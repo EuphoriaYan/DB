@@ -11,6 +11,7 @@ class DiceLoss(nn.Module):
     where iou computation is introduced heatmap manner to measure the
     diversity bwtween tow heatmaps.
     '''
+
     def __init__(self, eps=1e-6):
         super(DiceLoss, self).__init__()
         self.eps = eps
@@ -47,6 +48,7 @@ class LeakyDiceLoss(nn.Module):
     Variation from DiceLoss.
     The coverage and union are computed separately.
     '''
+
     def __init__(self, eps=1e-6, coverage_scale=5.0):
         super(LeakyDiceLoss, self).__init__()
         self.eps = eps
@@ -112,7 +114,7 @@ class InstanceDiceLoss(DiceLoss):
             instance_map = []
             for index in range(1, instance_count):
                 instance = torch.from_numpy(
-                        lable_map == index).to(tensor_on_gpu.device).type(torch.float32)
+                    lable_map == index).to(tensor_on_gpu.device).type(torch.float32)
                 instance_map.append(instance)
             instance_maps.append(instance_map)
         return instance_maps, instance_counts
@@ -147,15 +149,15 @@ class InstanceDiceLoss(DiceLoss):
                 for instance_index, pred_instance_map in enumerate(pred_instance_maps):
                     if self.iou(pred_instance_map, gt_instance_map) > self.iou_thresh:
                         match_loss = self._compute(
-                                pred[batch_index][0], gt[batch_index][0],
-                                mask[batch_index] * (pred_instance_map + gt_instance_map > 0).type(torch.float32))
+                            pred[batch_index][0], gt[batch_index][0],
+                            mask[batch_index] * (pred_instance_map + gt_instance_map > 0).type(torch.float32))
                         instance_loss = self.replace_or_add(instance_loss, match_loss)
                         if instance_index in mask_not_matched:
                             mask_not_matched.remove(instance_index)
                 if instance_loss is None:
                     instance_loss = self._compute(
-                            pred[batch_index][0], gt[batch_index][0],
-                            mask[batch_index] * gt_instance_map)
+                        pred[batch_index][0], gt[batch_index][0],
+                        mask[batch_index] * gt_instance_map)
                 single_loss = self.replace_or_add(single_loss, instance_loss)
 
             '''Whether to compute single loss on instances which contrain no positive sample.
@@ -167,10 +169,10 @@ class InstanceDiceLoss(DiceLoss):
 
             for instance_index in mask_not_matched:
                 single_loss = self.replace_or_add(
-                        single_loss,
-                        self._compute(
-                            pred[batch_index][0], gt[batch_index][0],
-                            mask[batch_index] * pred_instance_maps[instance_index]))
+                    single_loss,
+                    self._compute(
+                        pred[batch_index][0], gt[batch_index][0],
+                        mask[batch_index] * pred_instance_maps[instance_index]))
 
             if single_loss is not None:
                 losses.append(single_loss)

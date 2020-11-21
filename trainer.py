@@ -74,8 +74,8 @@ class Trainer:
 
                 self.logger.report_time("Data loading")
 
-                if self.experiment.validation and\
-                        self.steps % self.experiment.validation.interval == 0 and\
+                if self.experiment.validation and \
+                        self.steps % self.experiment.validation.interval == 0 and \
                         self.steps > self.experiment.validation.exempt:
                     self.validate(validation_loaders, model, epoch, self.steps)
                 self.logger.report_time('Validating ')
@@ -127,7 +127,8 @@ class Trainer:
         if step % self.experiment.logger.log_interval == 0:
             if isinstance(l, dict):
                 line = '\t'.join(line)
-                log_info = '\t'.join(['step:{:6d}', 'epoch:{:3d}', '{}', 'lr:{:.4f}']).format(step, epoch, line, self.current_lr)
+                log_info = '\t'.join(['step:{:6d}', 'epoch:{:3d}', '{}', 'lr:{:.4f}']).format(step, epoch, line,
+                                                                                              self.current_lr)
                 self.logger.info(log_info)
             else:
                 self.logger.info('step: %6d, epoch: %3d, loss: %.6f, lr: %f' % (
