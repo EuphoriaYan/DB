@@ -1,5 +1,5 @@
 import:
-  - 'experiments/seg_detector/base_td500.yaml'
+  - 'experiments/seg_detector/base_fakepages.yaml'
 package: [ ]
 define:
   - name: 'Experiment'
