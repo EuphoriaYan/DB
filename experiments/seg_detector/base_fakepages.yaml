@@ -6,7 +6,7 @@ define:
   - name: train_data
     class: ImageDataset
     data_dir:
-      - './datasets/book_pages/imgs_vertical'
+      - './datasets/book_pages/'
     data_list:
       - './datasets/book_pages/train_list.txt'
     processes:
@@ -30,7 +30,7 @@ define:
   - name: validate_data
     class: ImageDataset
     data_dir:
-      - './datasets/book_pages/imgs_vertical'
+      - './datasets/book_pages/'
     data_list:
       - './datasets/book_pages/test_list.txt'
     processes:
