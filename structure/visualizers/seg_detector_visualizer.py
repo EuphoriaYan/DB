@@ -97,6 +97,6 @@ class SegDetectorVisualizer(Configurable):
 
         for box in boxes:
             box = np.array(box).astype(np.int32).reshape(-1, 2)
-            cv2.polylines(pred_canvas, [box], True, (0, 0, 255), 3)
+            cv2.polylines(pred_canvas, [box], True, (0, 0, 255), 2)
 
         return pred_canvas
