@@ -46,16 +46,15 @@ def main():
     demo_handler = Demo(experiment, experiment_args, cmd=args)
 
     if os.path.isdir(args['image_path']):
-        for img in os.listdir(args['image_path']):
-            t0 = time.time()
+        img_cnt = len(os.listdir(args['image_path']))
+        for idx, img in enumerate(os.listdir(args['image_path'])):
+            t = time.time()
             demo_handler.inference(os.path.join(args['image_path'], img), args['visualize'])
-            t1 = time.time()
-            print('time {}'.format(t1-t0))
+            print("{}/{} elapsed time : {:.4f}s".format(idx + 1, img_cnt, time.time() - t))
     else:
-        t0 = time.time()
+        t = time.time()
         demo_handler.inference(args['image_path'], args['visualize'])
-        t1 = time.time()
-        print('time {}'.format(t1 - t0))
+        print("elapsed time : {}s".format(time.time() - t))
 
 
 class Demo:
