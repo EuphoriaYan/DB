@@ -1,6 +1,8 @@
 #!python3
 import argparse
 import os
+import time
+
 import torch
 import cv2
 import numpy as np
@@ -45,10 +47,15 @@ def main():
 
     if os.path.isdir(args['image_path']):
         for img in os.listdir(args['image_path']):
-            demo_handler.inference(os.path.join(args['image_path'], img), args['visualize']
-                                   )
+            t0 = time.time()
+            demo_handler.inference(os.path.join(args['image_path'], img), args['visualize'])
+            t1 = time.time()
+            print('time {}'.format(t1-t0))
     else:
+        t0 = time.time()
         demo_handler.inference(args['image_path'], args['visualize'])
+        t1 = time.time()
+        print('time {}'.format(t1 - t0))
 
 
 class Demo:
@@ -57,7 +64,7 @@ class Demo:
         self.experiment = experiment
         experiment.load('evaluation', **args)
         self.args = cmd
-        model_saver = experiment.train.model_saver
+        # model_saver = experiment.train.model_saver
         self.structure = experiment.structure
         self.model_path = self.args['resume']
         self.init_torch_tensor()
