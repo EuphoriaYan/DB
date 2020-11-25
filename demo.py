@@ -41,6 +41,8 @@ def main():
     conf = Config()
     experiment_args = conf.compile(conf.load(args['exp']))['Experiment']
     experiment_args.update(cmd=args)
+    # Delete train settings, prevent of reading training dataset
+    experiment_args.pop('train')
     experiment = Configurable.construct_class_from_config(experiment_args)
 
     demo_handler = Demo(experiment, experiment_args, cmd=args)
@@ -58,7 +60,9 @@ def main():
 
 
 class Demo:
-    def __init__(self, experiment, args, cmd=dict()):
+    def __init__(self, experiment, args, cmd=None):
+        if cmd is None:
+            cmd = dict()
         self.RGB_MEAN = np.array([122.67891434, 116.66876762, 104.00698793])
         self.experiment = experiment
         experiment.load('evaluation', **args)
@@ -141,7 +145,7 @@ class Demo:
                         res.write(result + ',' + str(score) + "\n")
 
     def inference(self, image_path, visualize=False):
-        # all_matircs = {}
+        # all_metrics = {}
         batch = dict()
         batch['filename'] = [image_path]
         img, original_shape = self.load_image(image_path)
