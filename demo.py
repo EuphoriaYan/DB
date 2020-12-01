@@ -43,6 +43,8 @@ def main():
     experiment_args.update(cmd=args)
     # Delete train settings, prevent of reading training dataset
     experiment_args.pop('train')
+    experiment_args.pop('evaluation')
+    experiment_args.pop('validation')
     experiment = Configurable.construct_class_from_config(experiment_args)
 
     demo_handler = Demo(experiment, experiment_args, cmd=args)
