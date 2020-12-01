@@ -5,6 +5,7 @@ import sys
 from shutil import copy
 import json
 import random
+import argparse
 
 
 def convert_LTRB_to_poly(bbox):
@@ -14,24 +15,40 @@ def convert_LTRB_to_poly(bbox):
     bottom = bbox[3]
     return [left, top, right, top, right, bottom, left, bottom]
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('imgs_path', type=str)
+    parser.add_argument('gt_path', type=str)
+    args = parser.parse_args()
+    return args
+
 
 if __name__ == '__main__':
-    imgs_path = 'datasets/book_pages/imgs_vertical'
-    gt_path = 'datasets/book_pages/book_pages_tags_vertical_3.txt'
 
-    train_imgs_path = 'datasets/book_pages/train_images'
-    train_gts_path = 'datasets/book_pages/train_gts'
+    args = parse_args()
 
-    test_imgs_path = 'datasets/book_pages/test_images'
-    test_gts_path = 'datasets/book_pages/test_gts'
+    imgs_path = args.imgs_path
+    gt_path = args.gt_path
 
-    train_imgs_list_path = 'datasets/book_pages/train_list.txt'
-    test_imgs_list_path = 'datasets/book_pages/test_list.txt'
+    (imgs_root, _) = os.path.split(imgs_path)
+
+    train_imgs_path = os.path.join(imgs_root, 'train_images')
+    train_gts_path = os.path.join(imgs_root, 'train_gts')
+    os.makedirs(train_imgs_path, exist_ok=True)
+    os.makedirs(train_gts_path, exist_ok=True)
+
+    test_imgs_path = os.path.join(imgs_root, 'test_images')
+    test_gts_path = os.path.join(imgs_root, 'test_gts')
+    os.makedirs(test_imgs_path, exist_ok=True)
+    os.makedirs(test_gts_path, exist_ok=True)
+
+    train_imgs_list_path = os.path.join(imgs_root, 'train_list.txt')
+    test_imgs_list_path = os.path.join(imgs_root, 'test_list.txt')
 
     total_timgs = os.listdir(imgs_path)
     total_cnt = len(total_timgs)
 
-    test_imgs_list = random.choices(total_timgs, k = total_cnt // 200)
+    test_imgs_list = random.choices(total_timgs, k=total_cnt // 200)
     test_imgs_set = set(test_imgs_list)
     train_imgs_list = [img for img in total_timgs if img not in test_imgs_set]
     train_imgs_set = set(train_imgs_list)
