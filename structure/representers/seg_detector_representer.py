@@ -1,3 +1,6 @@
+
+import os
+
 import cv2
 import numpy as np
 from shapely.geometry import Polygon
@@ -53,7 +56,7 @@ class SegDetectorRepresenter(Configurable):
                     pred[batch_index],
                     segmentation[batch_index], width, height)
             else:
-                boxes, scores = self.boxes_from_bitmap(
+                boxes, scores, pred_score = self.boxes_from_bitmap(
                     pred[batch_index],
                     segmentation[batch_index], width, height)
             boxes_batch.append(boxes)
@@ -122,9 +125,14 @@ class SegDetectorRepresenter(Configurable):
             whose values are binarized as {0, 1}
         '''
 
+        def cvt2HeatmapImg(img):
+            img = (np.clip(img, 0, 1) * 255).astype(np.uint8)
+            img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
+            return img
         assert _bitmap.size(0) == 1
         bitmap = _bitmap.cpu().numpy()[0]  # The first channel
         pred = pred.cpu().detach().numpy()[0]
+        pred_score = cvt2HeatmapImg(pred)
         height, width = bitmap.shape
         contours, _ = cv2.findContours(
             (bitmap * 255).astype(np.uint8),
@@ -143,7 +151,7 @@ class SegDetectorRepresenter(Configurable):
             if self.box_thresh > score:
                 continue
 
-            box = self.unclip(points).reshape(-1, 1, 2)
+            box = self.unclip(points).reshape((-1, 1, 2))
             box, sside = self.get_mini_boxes(box)
             if sside < self.min_size + 2:
                 continue
@@ -158,7 +166,7 @@ class SegDetectorRepresenter(Configurable):
                 np.round(box[:, 1] / height * dest_height), 0, dest_height)
             boxes[index, :, :] = box.astype(np.int16)
             scores[index] = score
-        return boxes, scores
+        return boxes, scores, pred_score
 
     def unclip(self, box, unclip_ratio=1.5):
         poly = Polygon(box)
