@@ -8,9 +8,11 @@ define:
     data_dir:
       - './datasets/book_pages_fz2_aug_jingbu_2w/'
       - './datasets/book_pages_fz2_split_ciqushi_1k/'
+      - './datasets/book_pages_fz2_split_num_end_ciqushi_5k/'
     data_list:
       - './datasets/book_pages_fz2_aug_jingbu_2w/train_list.txt'
       - './datasets/book_pages_fz2_split_ciqushi_1k/train_list.txt'
+      - './datasets/book_pages_fz2_split_num_end_ciqushi_5k/train_list.txt'
     processes:
       - class: AugmentDetectionData
         augmenter_args:
@@ -34,9 +36,11 @@ define:
     data_dir:
       - './datasets/book_pages_fz2_aug_jingbu_2w/'
       - './datasets/book_pages_fz2_split_ciqushi_1k/'
+      - './datasets/book_pages_fz2_split_num_end_ciqushi_5k/'
     data_list:
       - './datasets/book_pages_fz2_aug_jingbu_2w/test_list.txt'
       - './datasets/book_pages_fz2_split_ciqushi_1k/test_list.txt'
+      - './datasets/book_pages_fz2_split_num_end_ciqushi_5k/test_list.txt'
     processes:
       - class: AugmentDetectionData
         augmenter_args:
