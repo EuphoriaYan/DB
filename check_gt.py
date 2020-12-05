@@ -28,5 +28,6 @@ if __name__ == '__main__':
             cv2.polylines(img, [box], True, (0, 0, 255), 2)
             cv2.putText(img, str(idx), (int(np.min(box[:, 0])), int(np.mean(box[:, 1]))),
                         font, 1, (0, 255, 255), 2)
-        cv2.imshow('img', img)
-        cv2.waitKey(0)
+        # cv2.imshow('img', img)
+        # cv2.waitKey(0)
+        cv2.imwrite('demo_results/check_gt.jpg', img)
