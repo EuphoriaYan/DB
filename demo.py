@@ -166,7 +166,9 @@ class Demo:
                     output_idxs = [i.idx for i in output_idxs]
                     with open(result_file_path, 'wt') as res:
                         for idx in output_idxs:
-                            result = ",".join([str(int(x.reshape(-1).tolist())) for x in new_boxes[idx]])
+                            box = new_boxes[idx].reshape(-1).tolist()
+                            box = list(map(str, box))
+                            result = ",".join(box)
                             res.write(result + "\n")
                 else:
                     with open(result_file_path, 'wt') as res:
@@ -193,7 +195,7 @@ class Demo:
             self.format_output(batch, output)
 
             if visualize and self.structure.visualizer:
-                vis_image = self.structure.visualizer.demo_visualize(image_path, output)
+                vis_image = self.structure.visualizer.demo_visualize(image_path, output, self.args['box_thresh'])
                 cv2.imwrite(os.path.join(self.args['result_dir'], image_path.split('/')[-1].split('.')[0] + '.jpg'),
                             vis_image)
 

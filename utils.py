@@ -89,10 +89,11 @@ def read_out(classified_recs, recs, cover_threshold=0.2):
                             output_idx.append(nxt.pop(0))
                         while nxt2:
                             output_idx.append(nxt2.pop(0))
-                    cur_u = recs[cur[0]].u
-                    while nxt and recs[nxt[0]].u < cur_u:
+                        break
+                    cur_u = cur[0].u
+                    while nxt and nxt[0].u < cur_u:
                         output_idx.append(nxt.pop(0))
-                    while nxt2 and recs[nxt2[0]].u < cur_u:
+                    while nxt2 and nxt2[0].u < cur_u:
                         output_idx.append(nxt2.pop(0))
                     output_idx.append(cur.pop(0))
             else:
@@ -103,13 +104,10 @@ def read_out(classified_recs, recs, cover_threshold=0.2):
     return output_idx
 
 
-
-
-
-def list_sort(box_list):
+def list_sort(box_list, cover_threshold=0.2):
     r = np.mean([b.r for b in box_list])
     length = np.mean([b.r - b.l for b in box_list])
-    return r + length
+    return r + length * cover_threshold
 
 
 def box_sort(box):
