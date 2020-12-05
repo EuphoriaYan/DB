@@ -3,13 +3,15 @@ import argparse
 import os
 import time
 
+import math
 import torch
 import cv2
 import numpy as np
+import itertools
+
 from experiment import Structure, Experiment
 from concern.config import Configurable, Config
-import math
-
+import utils
 
 def main():
     parser = argparse.ArgumentParser(description='Text Recognition Training')
@@ -33,6 +35,8 @@ def main():
                         help='output polygons if true')
     parser.add_argument('--eager', '--eager_show', action='store_true', dest='eager_show',
                         help='Show iamges eagerly')
+    parser.add_argument('--sort_boxes', action='store_true', dest='sort_boxes',
+                        help='Sort boxes for further works')
 
     args = parser.parse_args()
     args = vars(args)
@@ -95,8 +99,7 @@ class Demo:
             print("Checkpoint not found: " + path)
             return
         print("Resuming from " + path)
-        states = torch.load(
-            path, map_location=self.device)
+        states = torch.load(path, map_location=self.device)
         model.load_state_dict(states, strict=False)
         print("Resumed from " + path)
 
@@ -137,14 +140,42 @@ class Demo:
                         score = scores[i]
                         res.write(result + ',' + str(score) + "\n")
             else:
-                with open(result_file_path, 'wt') as res:
+                if self.args['sort_boxes']:
+                    new_boxes = []
+                    # new_scores = []
                     for i in range(boxes.shape[0]):
                         score = scores[i]
                         if score < self.args['box_thresh']:
                             continue
-                        box = boxes[i, :, :].reshape(-1).tolist()
-                        result = ",".join([str(int(x)) for x in box])
-                        res.write(result + ',' + str(score) + "\n")
+                        new_boxes.append(boxes[i, :, :])
+                        # new_scores.append(score)
+                    recs = [utils.trans_poly_to_rec(box) for box in new_boxes]
+                    cluster_rec_ids = utils.cluster_recs(recs)
+                    cluster_recs = []
+                    for k in cluster_rec_ids.keys():
+                        box_ids = cluster_rec_ids[k]
+                        cluster_recs.append([recs[box_id] for box_id in box_ids])
+                    classified_recs = sorted(cluster_recs, key=utils.list_sort, reverse=True)
+                    '''
+                    new_classified_recs = []
+                    for box_list in classified_recs:
+                        new_classified_recs.append(sorted(box_list, key=utils.box_sort, reverse=False))
+                    '''
+                    classified_recs = [sorted(l, key=utils.box_sort, reverse=False) for l in classified_recs]
+                    output_idxs = utils.read_out(classified_recs, recs)
+                    with open(result_file_path, 'wt') as res:
+                        for idx in output_idxs:
+                            result = ",".join([str(int(x)) for x in new_boxes[idx]])
+                            res.write(result + "\n")
+                else:
+                    with open(result_file_path, 'wt') as res:
+                        for i in range(boxes.shape[0]):
+                            score = scores[i]
+                            if score < self.args['box_thresh']:
+                                continue
+                            box = boxes[i, :, :].reshape(-1).tolist()
+                            result = ",".join([str(int(x)) for x in box])
+                            res.write(result + ',' + str(score) + "\n")
 
     def inference(self, image_path, visualize=False):
         # all_metrics = {}
