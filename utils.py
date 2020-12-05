@@ -67,48 +67,41 @@ def read_out(classified_recs, recs, cover_threshold=0.2):
     total_clusters = len(classified_recs)
     for i in range(total_clusters):
         # i - 1 can't be one-column.
-        if i == total_clusters - 1:
-            while classified_recs[i]:
-                output_idx.append(classified_recs[i].pop(0))
-        elif classified_recs[i]:
-            # check if cur cluster is one-column and nxt cluster is two-column
+        if classified_recs[i]:
+            # check if cur cluster is one-column and any of next clusters is two-column
             cur = classified_recs[i]
-            nxt = classified_recs[i + 1]
-            if check_one_over_two(cur, nxt, recs, cover_threshold):
-                if i < total_clusters - 2:
-                    nxt2 = classified_recs[i + 2]
-                    # check another two-column cluster
-                    if not check_one_over_two(cur, nxt2, recs, cover_threshold):
-                        nxt2 = None
-                else:
-                    nxt2 = None
-
-                while cur or nxt or nxt2:
-                    if not cur:
-                        while nxt:
-                            output_idx.append(nxt.pop(0))
-                        while nxt2:
-                            output_idx.append(nxt2.pop(0))
-                        break
-                    cur_u = cur[0].u
-                    while nxt and nxt[0].u < cur_u:
-                        output_idx.append(nxt.pop(0))
-                    while nxt2 and nxt2[0].u < cur_u:
-                        output_idx.append(nxt2.pop(0))
-                    output_idx.append(cur.pop(0))
-            else:
+            nxt_list = []
+            for j in range(1, 5):
+                if i + j > total_clusters - 1:
+                    break
+                nxt = classified_recs[i + j]
+                if nxt and check_one_over_two(cur, nxt, recs, cover_threshold):
+                    nxt_list.append(nxt)
+            if not nxt_list:
                 while classified_recs[i]:
                     output_idx.append(classified_recs[i].pop(0))
+                    continue
+            while cur or reduce(lambda x, y: x or y, nxt_list, False):
+                if not cur:
+                    for nxt in nxt_list:
+                        while nxt:
+                            output_idx.append(nxt.pop(0))
+                    break
+                cur_u = cur[0].u
+                for nxt in nxt_list:
+                    while nxt and nxt[0].u < cur_u:
+                        output_idx.append(nxt.pop(0))
+                output_idx.append(cur.pop(0))
         else:
             continue
     return output_idx
 
 
-def list_sort(box_list, cover_threshold=0.4):
+def list_sort(box_list, cover_threshold=0.3):
     r = np.mean([b.r for b in box_list])
     length = np.mean([b.r - b.l for b in box_list])
     return r + length * cover_threshold
 
 
 def box_sort(box):
-    return (box.u + box.d) / 2
+    return box.u - box.r
