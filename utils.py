@@ -14,15 +14,15 @@ from sklearn.cluster import DBSCAN, KMeans, MeanShift, OPTICS, Birch
 
 
 # (n, 2) poly -> box_dict
-def trans_poly_to_rec(poly):
+def trans_poly_to_rec(idx, poly):
     # poly = np.array(poly).reshape(-1, 2)
     poly = poly.tolist()
     l = min([i[0] for i in poly])
     r = max([i[0] for i in poly])
     u = min([i[1] for i in poly])
     d = max([i[1] for i in poly])
-    Rec = collections.namedtuple('Rec', 'l r u d')
-    rec = Rec(l, r, u, d)
+    Rec = collections.namedtuple('Rec', 'l r u d idx')
+    rec = Rec(l, r, u, d, idx)
     return rec
 
 
@@ -51,10 +51,10 @@ def cluster_recs(recs, type='DBSCAN'):
 
 
 def check_one_over_two(cur, nxt, recs, cover_threshold):
-    cur_l = np.mean([recs[idx].l for idx in cur])
-    cur_r = np.mean([recs[idx].r for idx in cur])
-    nxt_l = np.mean([recs[idx].l for idx in nxt])
-    nxt_r = np.mean([recs[idx].r for idx in nxt])
+    cur_l = np.mean([i.l for i in cur])
+    cur_r = np.mean([i.r for i in cur])
+    nxt_l = np.mean([i.l for i in nxt])
+    nxt_r = np.mean([i.r for i in nxt])
     cur_len = cur_r - cur_l
     nxt_len = nxt_r - nxt_l
     cover = min(cur_r, nxt_r) - max(cur_l, nxt_l)

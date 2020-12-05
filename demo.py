@@ -149,7 +149,7 @@ class Demo:
                             continue
                         new_boxes.append(boxes[i, :, :])
                         # new_scores.append(score)
-                    recs = [utils.trans_poly_to_rec(box) for box in new_boxes]
+                    recs = [utils.trans_poly_to_rec(idx, box) for idx, box in enumerate(new_boxes)]
                     cluster_rec_ids = utils.cluster_recs(recs)
                     cluster_recs = []
                     for k in cluster_rec_ids.keys():
@@ -163,9 +163,10 @@ class Demo:
                     '''
                     classified_recs = [sorted(l, key=utils.box_sort, reverse=False) for l in classified_recs]
                     output_idxs = utils.read_out(classified_recs, recs)
+                    output_idxs = [i.idx for i in output_idxs]
                     with open(result_file_path, 'wt') as res:
                         for idx in output_idxs:
-                            result = ",".join([str(int(x)) for x in new_boxes[idx]])
+                            result = ",".join([str(int(x.reshape(-1).tolist())) for x in new_boxes[idx]])
                             res.write(result + "\n")
                 else:
                     with open(result_file_path, 'wt') as res:
