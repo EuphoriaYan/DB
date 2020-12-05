@@ -96,13 +96,10 @@ class SegDetectorVisualizer(Configurable):
         pred_canvas = original_image.copy().astype(np.uint8)
         pred_canvas = cv2.resize(pred_canvas, (original_shape[1], original_shape[0]))
 
-        font = cv2.FONT_HERSHEY_SIMPLEX
         for idx, (box, score) in enumerate(zip(boxes, scores)):
             if score < box_thresh:
                 continue
             box = np.array(box).astype(np.int32).reshape(-1, 2)
             cv2.polylines(pred_canvas, [box], True, (0, 0, 255), 2)
-            cv2.putText(pred_canvas, str(idx), (int(np.min(box[:, 0])), int(np.mean(box[:, 1]))),
-                        font, 1.2, (0, 0, 255), 2)
 
         return pred_canvas
