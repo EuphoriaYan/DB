@@ -44,7 +44,7 @@ if __name__ == '__main__':
                     box = np.array(box).astype(np.int32).reshape(-1, 2)
                     cv2.polylines(img, [box], True, (0, 0, 255), 2)
                     cv2.putText(img, str(idx), (int(np.min(box[:, 0])), int(np.mean(box[:, 1]))),
-                                font, 1, (255, 0, 255), 2)
+                                font, 1, (255, 0, 0), 2)
                 # cv2.imshow('img', img)
                 # cv2.waitKey(0)
                 cv2.imwrite(os.path.join(args.gt, os.path.splitext(img_name)[0] + '_check.jpg'), img)

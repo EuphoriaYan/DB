@@ -28,7 +28,7 @@ def trans_poly_to_rec(idx, poly):
 
 def cluster_recs(recs, type='DBSCAN'):
     switch = {
-        'DBSCAN': DBSCAN(min_samples=1, eps=7),
+        'DBSCAN': DBSCAN(min_samples=1, eps=10),
         'MeanShift': MeanShift(bandwidth=0.3),
         'OPTICS': OPTICS(min_samples=1, eps=20),
         'Birch': Birch(n_clusters=None)
@@ -58,7 +58,7 @@ def check_one_over_two(cur, nxt, recs, cover_threshold):
     cur_len = cur_r - cur_l
     nxt_len = nxt_r - nxt_l
     cover = min(cur_r, nxt_r) - max(cur_l, nxt_l)
-    if nxt_len * 1.5 <= cur_len <= nxt_len * 2.5 and cover > cover_threshold * nxt_len:
+    if nxt_len * 1.4 <= cur_len <= nxt_len * 2.5 and cover > cover_threshold * nxt_len:
         return True
 
 
@@ -104,7 +104,7 @@ def read_out(classified_recs, recs, cover_threshold=0.2):
     return output_idx
 
 
-def list_sort(box_list, cover_threshold=0.2):
+def list_sort(box_list, cover_threshold=0.4):
     r = np.mean([b.r for b in box_list])
     length = np.mean([b.r - b.l for b in box_list])
     return r + length * cover_threshold
