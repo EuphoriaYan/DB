@@ -28,12 +28,14 @@ if __name__ == '__main__':
                 box = np.array(box).astype(np.int32).reshape(-1, 2)
                 cv2.polylines(img, [box], True, (0, 0, 255), 2)
                 cv2.putText(img, str(idx), (int(np.min(box[:, 0])), int(np.mean(box[:, 1]))),
-                            font, 1, (0, 255, 255), 2)
+                            font, 1, (255, 0, 0), 2)
             # cv2.imshow('img', img)
             # cv2.waitKey(0)
             cv2.imwrite('demo_results/check_gt.jpg', img)
     else:
         for img_name in os.listdir(args.img):
+            if os.path.splitext(img_name)[1].lower() not in ['.jpg', '.tif', '.png', '.jpeg']:
+                continue
             gt_path = os.path.join(args.gt, 'res_' + os.path.splitext(img_name)[0] + '.txt')
             img = cv2.imread(os.path.join(args.img, img_name))
             font = cv2.FONT_HERSHEY_SIMPLEX

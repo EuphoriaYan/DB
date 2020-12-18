@@ -28,7 +28,7 @@ def trans_poly_to_rec(idx, poly):
 
 def cluster_recs(recs, type='DBSCAN'):
     switch = {
-        'DBSCAN': DBSCAN(min_samples=1, eps=10),
+        'DBSCAN': DBSCAN(min_samples=1, eps=0.015),
         'MeanShift': MeanShift(bandwidth=0.3),
         'OPTICS': OPTICS(min_samples=1, eps=20),
         'Birch': Birch(n_clusters=None)
@@ -37,9 +37,11 @@ def cluster_recs(recs, type='DBSCAN'):
         cluster = switch[type]
     except ValueError as e:
         raise ValueError('type should be DBSCAN, MeanShift, OPTICS or Birch')
-    boxes_data = [[rec.l, rec.r] for rec in recs]
-    boxes_data = np.array(boxes_data)
-    labels = cluster.fit_predict(boxes_data)
+    recs_data = [[rec.l, rec.r] for rec in recs]
+    recs_data = np.array(recs_data)
+    recs_min, recs_max = recs_data.min(), recs_data.max()
+    recs_data = (recs_data - recs_min) / (recs_max - recs_min)
+    labels = cluster.fit_predict(recs_data)
     '''
     plt.scatter(boxes_data[:, 0], boxes_data[:, 1], s=1, c=labels)
     plt.show()
@@ -58,7 +60,7 @@ def check_one_over_two(cur, nxt, recs, cover_threshold):
     cur_len = cur_r - cur_l
     nxt_len = nxt_r - nxt_l
     cover = min(cur_r, nxt_r) - max(cur_l, nxt_l)
-    if nxt_len * 1.4 <= cur_len <= nxt_len * 2.5 and cover > cover_threshold * nxt_len:
+    if nxt_len * 1.4 <= cur_len and cover > cover_threshold * nxt_len:
         return True
 
 

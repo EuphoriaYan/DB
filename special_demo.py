@@ -18,7 +18,6 @@ def main():
     parser.add_argument('exp', type=str)
     parser.add_argument('--resume', type=str, help='Resume from checkpoint')
     parser.add_argument('--image_path', type=str, help='image path')
-    parser.add_argument('--result_dir', type=str, default='./demo_results/', help='path to save results')
     parser.add_argument('--data', type=str,
                         help='The name of dataloader which will be evaluated on.')
     parser.add_argument('--image_short_side', type=int, default=736,
@@ -53,18 +52,19 @@ def main():
 
     demo_handler = Demo(experiment, experiment_args, cmd=args)
 
-    if os.path.isdir(args['image_path']):
-        img_cnt = len(os.listdir(args['image_path']))
-        for idx, img in enumerate(os.listdir(args['image_path'])):
-            if os.path.splitext(img)[1].lower() not in ['.jpg', '.tif', '.png', '.jpeg']:
+    img_list = []
+    img_ext_set = {'.jpg', '.tif', '.png', '.jpeg', 'tiff'}
+    for root, dirs, files in os.walk(args['image_path']):
+        for file in files:
+            if os.path.splitext(file)[1].lower() not in img_ext_set:
                 continue
-            t = time.time()
-            demo_handler.inference(os.path.join(args['image_path'], img), args['visualize'])
-            print("{}/{} elapsed time : {:.4f}s".format(idx + 1, img_cnt, time.time() - t))
-    else:
+            path = os.path.join(root, file)
+            img_list.append(path)
+
+    for idx, img in enumerate(img_list):
         t = time.time()
-        demo_handler.inference(args['image_path'], args['visualize'])
-        print("elapsed time : {}s".format(time.time() - t))
+        demo_handler.inference(img, args['visualize'])
+        print("{}/{} elapsed time : {:.4f}s".format(idx + 1, len(img_list) + 1, time.time() - t))
 
 
 class Demo:
@@ -127,14 +127,10 @@ class Demo:
 
     def format_output(self, batch, output):
         batch_boxes, batch_scores = output
-        crop_img_path = os.path.join(self.args['result_dir'], 'crop')
-        os.makedirs(crop_img_path, exist_ok=True)
         for index in range(batch['image'].size(0)):
             original_shape = batch['shape'][index]
             filename = batch['filename'][index]
-            raw_img = cv2.imread(filename, cv2.IMREAD_COLOR)
-            result_file_name = 'res_' + filename.split('/')[-1].split('.')[0] + '.txt'
-            result_file_path = os.path.join(self.args['result_dir'], result_file_name)
+            result_file_path = os.path.splitext(filename)[0] + '.txt'
             boxes = batch_boxes[index]
             scores = batch_scores[index]
             if self.args['polygon']:
@@ -166,16 +162,7 @@ class Demo:
                     classified_recs = [sorted(l, key=utils.box_sort, reverse=False) for l in classified_recs]
                     output_recs = utils.read_out(classified_recs, recs)
                     output_idxs = []
-                    for crop_idx, rec in enumerate(output_recs):
-                        crop_path = os.path.join(
-                            crop_img_path,
-                            os.path.splitext(os.path.basename(filename))[0] + '_' + str(crop_idx) + '.jpg'
-                        )
-                        crop_l = max(0, rec.l - 5)
-                        crop_r = min(original_shape[1], rec.r + 5)
-                        crop_u = max(0, rec.u - 5)
-                        crop_d = min(original_shape[0], rec.d + 5)
-                        cv2.imwrite(crop_path, raw_img[crop_u:crop_d, crop_l:crop_r, :])
+                    for rec in output_recs:
                         output_idxs.append(rec.idx)
                     # output_idxs = [i.idx for i in output_idxs]
                     with open(result_file_path, 'wt') as res:
@@ -204,14 +191,10 @@ class Demo:
             batch['image'] = img
             pred = self.model.forward(batch, training=False)
             output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args['polygon'])
-            if not os.path.isdir(self.args['result_dir']):
-                os.mkdir(self.args['result_dir'])
             self.format_output(batch, output)
-
             if visualize and self.structure.visualizer:
                 vis_image = self.structure.visualizer.demo_visualize(image_path, output, self.args['box_thresh'])
-                cv2.imwrite(os.path.join(self.args['result_dir'], image_path.split('/')[-1].split('.')[0] + '.jpg'),
-                            vis_image)
+                cv2.imwrite(os.path.splitext(image_path)[0] + '_res.jpg', vis_image)
 
 
 if __name__ == '__main__':
