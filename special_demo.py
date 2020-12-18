@@ -189,6 +189,7 @@ class Demo:
         batch['filename'] = [image_path]
         img, original_shape = self.load_image(image_path)
         if img is None:
+            print(f'{image_path} is broken. pass.')
             return
         batch['shape'] = [original_shape]
         with torch.no_grad():
