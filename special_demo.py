@@ -117,6 +117,8 @@ class Demo:
         return resized_img
 
     def load_image(self, image_path):
+        # for chinese character in path case
+        # img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1).astype('float32')
         img = cv2.imread(image_path, cv2.IMREAD_COLOR).astype('float32')
         if img is None:
             return None, None
