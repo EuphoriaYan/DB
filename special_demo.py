@@ -118,6 +118,8 @@ class Demo:
 
     def load_image(self, image_path):
         img = cv2.imread(image_path, cv2.IMREAD_COLOR).astype('float32')
+        if img is None:
+            return None, None
         original_shape = img.shape[:2]
         img = self.resize_image(img)
         img -= self.RGB_MEAN
@@ -186,6 +188,8 @@ class Demo:
         batch = dict()
         batch['filename'] = [image_path]
         img, original_shape = self.load_image(image_path)
+        if img is None:
+            return
         batch['shape'] = [original_shape]
         with torch.no_grad():
             batch['image'] = img
