@@ -34,7 +34,7 @@ def main():
     parser.add_argument('--polygon', action='store_true',
                         help='output polygons if true')
     parser.add_argument('--eager', '--eager_show', action='store_true', dest='eager_show',
-                        help='Show iamges eagerly')
+                        help='Show images eagerly')
     parser.add_argument('--sort_boxes', action='store_true', dest='sort_boxes',
                         help='Sort boxes for further works')
 
