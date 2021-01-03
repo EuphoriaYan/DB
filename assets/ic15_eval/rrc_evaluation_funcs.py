@@ -330,7 +330,7 @@ def main_evaluation(p, default_evaluation_params_fn, validate_data_fn, evaluate_
         evalData = evaluate_method_fn(p['g'], p['s'], evalParams)
         resDict.update(evalData)
 
-    except Exception, e:
+    except Exception as e:
         resDict['Message'] = str(e)
         resDict['calculated'] = False
 
