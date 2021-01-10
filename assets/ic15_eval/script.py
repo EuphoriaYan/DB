@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from collections import namedtuple
-import rrc_evaluation_funcs
+
+from assets.ic15_eval import rrc_evaluation_funcs
 import importlib
 import json
+import Polygon as plg
+import numpy as np
 
 
 def evaluation_imports():
@@ -103,13 +106,13 @@ def evaluate_method(gtFilePath, submFilePath, evaluationParams):
         return points
 
     def get_union(pD, pG):
-        areaA = pD.area();
-        areaB = pG.area();
-        return areaA + areaB - get_intersection(pD, pG);
+        areaA = pD.area()
+        areaB = pG.area()
+        return areaA + areaB - get_intersection(pD, pG)
 
     def get_intersection_over_union(pD, pG):
         try:
-            return get_intersection(pD, pG) / get_union(pD, pG);
+            return get_intersection(pD, pG) / get_union(pD, pG)
         except:
             return 0
 
@@ -327,7 +330,7 @@ def evaluate_method(gtFilePath, submFilePath, evaluationParams):
 
     resDict = {'calculated': True, 'Message': '', 'method': methodMetrics, 'per_sample': perSampleMetrics}
 
-    return resDict;
+    return resDict
 
 
 if __name__ == '__main__':

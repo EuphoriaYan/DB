@@ -9,8 +9,6 @@ import re
 import sys
 import os
 import codecs
-import importlib
-from StringIO import StringIO
 
 
 def print_help():
@@ -239,10 +237,10 @@ def get_tl_line_values(line, LTRB=True, withTranscription=False, withConfidence=
 
 def validate_point_inside_bounds(x, y, imWidth, imHeight):
     if (x < 0 or x > imWidth):
-        raise Exception("X value (%s) not valid. Image dimensions: (%s,%s)" % (xmin, imWidth, imHeight))
+        raise Exception("X value (%s) not valid. Image dimensions: (%s,%s)" % (x, imWidth, imHeight))
     if (y < 0 or y > imHeight):
         raise Exception(
-            "Y value (%s)  not valid. Image dimensions: (%s,%s) Sample: %s Line:%s" % (ymin, imWidth, imHeight))
+            "Y value (%s)  not valid. Image dimensions: (%s,%s) Sample: %s Line:%s" % (y, imWidth, imHeight))
 
 
 def validate_clockwise_points(points):
@@ -330,7 +328,7 @@ def main_evaluation(p, default_evaluation_params_fn, validate_data_fn, evaluate_
         evalData = evaluate_method_fn(p['g'], p['s'], evalParams)
         resDict.update(evalData)
 
-    except Exception, e:
+    except Exception as e:
         resDict['Message'] = str(e)
         resDict['calculated'] = False
 
@@ -386,10 +384,10 @@ def main_validation(default_evaluation_params_fn, validate_data_fn):
             evalParams.update(p['p'] if isinstance(p['p'], dict) else json.loads(p['p'][1:-1]))
 
         validate_data_fn(p['g'], p['s'], evalParams)
-        print
+        print()
         'SUCCESS'
         sys.exit(0)
     except Exception as e:
-        print
+        print()
         str(e)
         sys.exit(101)
