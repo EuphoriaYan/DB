@@ -26,7 +26,7 @@ def trans_poly_to_rec(idx, poly):
     return rec
 
 
-def cluster_recs(recs, type='DBSCAN'):
+def cluster_recs_with_lr(recs, type='DBSCAN'):
     switch = {
         'DBSCAN': DBSCAN(min_samples=1, eps=0.015),
         'MeanShift': MeanShift(bandwidth=0.3),
@@ -43,12 +43,35 @@ def cluster_recs(recs, type='DBSCAN'):
     recs_data = (recs_data - recs_min) / (recs_max - recs_min)
     labels = cluster.fit_predict(recs_data)
     '''
-    plt.scatter(boxes_data[:, 0], boxes_data[:, 1], s=1, c=labels)
+    plt.scatter(recs_data[:, 0], recs_data[:, 1], s=1, c=labels)
     plt.show()
     '''
     classified_box_ids = collections.defaultdict(list)
     for idx, label in enumerate(labels):
         classified_box_ids[label].append(idx)
+    return classified_box_ids
+
+
+def cluster_recs_with_width(recs, type='Birch', n_clusters=None):
+    switch = {
+        'Kmeans': KMeans(n_clusters=n_clusters),
+        'Birch': Birch(n_clusters=n_clusters)
+    }
+    try:
+        cluster = switch[type]
+    except ValueError as e:
+        raise ValueError('type should be DBSCAN, MeanShift, OPTICS or Birch')
+    recs_data = [rec.r - rec.l for rec in recs]
+    recs_data = np.array(recs_data).reshape(-1, 1)
+    recs_max = np.max(recs_data)
+    recs_data = recs_data / recs_max * 5
+    labels = cluster.fit_predict(recs_data)
+    # plt.scatter(recs_data[:], recs_data[:], s=1, c=labels)
+    # plt.show()
+    classified_box_ids = collections.defaultdict(list)
+    for idx, label in enumerate(labels):
+        classified_box_ids[label].append(idx)
+
     return classified_box_ids
 
 
@@ -62,9 +85,11 @@ def check_one_over_two(cur, nxt, recs, cover_threshold):
     cover = min(cur_r, nxt_r) - max(cur_l, nxt_l)
     if nxt_len * 1.4 <= cur_len and cover > cover_threshold * nxt_len:
         return True
+    else:
+        return False
 
 
-def read_out(classified_recs, recs, cover_threshold=0.2):
+def read_out(classified_recs, recs, cover_threshold, bigger_idx=None):
     output_idx = []
     total_clusters = len(classified_recs)
     for i in range(total_clusters):
@@ -72,6 +97,15 @@ def read_out(classified_recs, recs, cover_threshold=0.2):
         if classified_recs[i]:
             # check if cur cluster is one-column and any of next clusters is two-column
             cur = classified_recs[i]
+            flag = False
+            for rec in cur:
+                if rec.idx in bigger_idx:
+                    flag = True
+                    break
+            if not flag:
+                while classified_recs[i]:
+                    output_idx.append(classified_recs[i].pop(0))
+                continue
             nxt_list = []
             for j in range(1, 5):
                 if i + j > total_clusters - 1:
@@ -82,7 +116,7 @@ def read_out(classified_recs, recs, cover_threshold=0.2):
             if not nxt_list:
                 while classified_recs[i]:
                     output_idx.append(classified_recs[i].pop(0))
-                    continue
+                continue
             while cur or reduce(lambda x, y: x or y, nxt_list, False):
                 if not cur:
                     for nxt in nxt_list:
@@ -99,10 +133,15 @@ def read_out(classified_recs, recs, cover_threshold=0.2):
     return output_idx
 
 
-def list_sort(box_list, cover_threshold=0.3):
+def list_sort(box_list, cover_threshold=0.45):
     r = np.mean([b.r for b in box_list])
     length = np.mean([b.r - b.l for b in box_list])
     return r + length * cover_threshold
+
+
+def width_sort(box_list):
+    width = np.mean([b.r - b.l for b in box_list])
+    return width
 
 
 def box_sort(box):

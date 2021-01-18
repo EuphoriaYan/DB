@@ -117,7 +117,8 @@ class Demo:
         return resized_img
 
     def load_image(self, image_path):
-        img = cv2.imread(image_path, cv2.IMREAD_COLOR).astype('float32')
+        img = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_COLOR).astype('float32')
+        # img = cv2.imread(image_path, cv2.IMREAD_COLOR).astype('float32')
         original_shape = img.shape[:2]
         img = self.resize_image(img)
         img -= self.RGB_MEAN
@@ -132,7 +133,8 @@ class Demo:
         for index in range(batch['image'].size(0)):
             original_shape = batch['shape'][index]
             filename = batch['filename'][index]
-            raw_img = cv2.imread(filename, cv2.IMREAD_COLOR)
+            raw_img = cv2.imdecode(np.fromfile(filename, dtype=np.uint8), cv2.IMREAD_COLOR).astype('float32')
+            # raw_img = cv2.imread(filename, cv2.IMREAD_COLOR)
             result_file_name = 'res_' + filename.split('/')[-1].split('.')[0] + '.txt'
             result_file_path = os.path.join(self.args['result_dir'], result_file_name)
             boxes = batch_boxes[index]
@@ -157,14 +159,21 @@ class Demo:
                     if len(new_boxes) == 0:
                         return
                     recs = [utils.trans_poly_to_rec(idx, box) for idx, box in enumerate(new_boxes)]
-                    cluster_rec_ids = utils.cluster_recs(recs)
+                    cluster_rec_ids = utils.cluster_recs_with_width(recs, type='Birch', n_clusters=2)
+                    cluster_recs = []
+                    for k in cluster_rec_ids.keys():
+                        box_ids = cluster_rec_ids[k]
+                        cluster_recs.append([recs[box_id] for box_id in box_ids])
+                    cluster_recs = sorted(cluster_recs, key=utils.width_sort, reverse=False)
+                    bigger_idx = [b.idx for b in cluster_recs[-1]]
+                    cluster_rec_ids = utils.cluster_recs_with_lr(recs, type='DBSCAN')
                     cluster_recs = []
                     for k in cluster_rec_ids.keys():
                         box_ids = cluster_rec_ids[k]
                         cluster_recs.append([recs[box_id] for box_id in box_ids])
                     classified_recs = sorted(cluster_recs, key=utils.list_sort, reverse=True)
                     classified_recs = [sorted(l, key=utils.box_sort, reverse=False) for l in classified_recs]
-                    output_recs = utils.read_out(classified_recs, recs)
+                    output_recs = utils.read_out(classified_recs, recs, cover_threshold=0.3, bigger_idx=bigger_idx)
                     output_idxs = []
                     for crop_idx, rec in enumerate(output_recs):
                         crop_path = os.path.join(
@@ -178,7 +187,7 @@ class Demo:
                         cv2.imwrite(crop_path, raw_img[crop_u:crop_d, crop_l:crop_r, :])
                         output_idxs.append(rec.idx)
                     # output_idxs = [i.idx for i in output_idxs]
-                    with open(result_file_path, 'wt') as res:
+                    with open(result_file_path, 'wt', encoding='utf-8') as res:
                         for idx in output_idxs:
                             box = new_boxes[idx].reshape(-1).tolist()
                             box = list(map(str, box))
