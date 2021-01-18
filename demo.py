@@ -117,7 +117,7 @@ class Demo:
         return resized_img
 
     def load_image(self, image_path):
-        img = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_COLOR).astype('float32')
+        img = utils.cv2read(image_path).astype('float32')
         # img = cv2.imread(image_path, cv2.IMREAD_COLOR).astype('float32')
         original_shape = img.shape[:2]
         img = self.resize_image(img)
@@ -133,9 +133,9 @@ class Demo:
         for index in range(batch['image'].size(0)):
             original_shape = batch['shape'][index]
             filename = batch['filename'][index]
-            raw_img = cv2.imdecode(np.fromfile(filename, dtype=np.uint8), cv2.IMREAD_COLOR).astype('float32')
+            raw_img = utils.cv2read(filename).astype('float32')
             # raw_img = cv2.imread(filename, cv2.IMREAD_COLOR)
-            result_file_name = 'res_' + filename.split('/')[-1].split('.')[0] + '.txt'
+            result_file_name = 'res_' + os.path.splitext(os.path.basename(filename))[0] + '.txt'
             result_file_path = os.path.join(self.args['result_dir'], result_file_name)
             boxes = batch_boxes[index]
             scores = batch_scores[index]
@@ -187,7 +187,7 @@ class Demo:
                         cv2.imwrite(crop_path, raw_img[crop_u:crop_d, crop_l:crop_r, :])
                         output_idxs.append(rec.idx)
                     # output_idxs = [i.idx for i in output_idxs]
-                    with open(result_file_path, 'wt', encoding='utf-8') as res:
+                    with open(result_file_path, 'w', encoding='utf-8') as res:
                         for idx in output_idxs:
                             box = new_boxes[idx].reshape(-1).tolist()
                             box = list(map(str, box))
@@ -219,8 +219,8 @@ class Demo:
 
             if visualize and self.structure.visualizer:
                 vis_image = self.structure.visualizer.demo_visualize(image_path, output, self.args['box_thresh'])
-                cv2.imwrite(os.path.join(self.args['result_dir'], image_path.split('/')[-1].split('.')[0] + '.jpg'),
-                            vis_image)
+                res_path = os.path.join(self.args['result_dir'], os.path.splitext(os.path.basename(image_path))[0] + '.jpg')
+                utils.cv2save(vis_image, res_path)
 
 
 if __name__ == '__main__':

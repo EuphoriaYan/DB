@@ -7,6 +7,8 @@ from PIL import Image, ImageDraw
 import cv2
 import numpy as np
 
+import utils
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -19,7 +21,8 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     if not os.path.isdir(args.img):
-        img = cv2.imread(args.img)
+        # img = cv2.imread(args.img)
+        img = utils.cv2read(args.img)
         font = cv2.FONT_HERSHEY_SIMPLEX
         with open(args.gt, 'r', encoding='utf-8') as fp:
             for idx, line in enumerate(fp):
@@ -31,13 +34,15 @@ if __name__ == '__main__':
                             font, 1, (255, 0, 0), 2)
             # cv2.imshow('img', img)
             # cv2.waitKey(0)
-            cv2.imwrite('demo_results/check_gt.jpg', img)
+            utils.cv2save(img, 'demo_results/check_gt.jpg')
+            # cv2.imwrite('demo_results/check_gt.jpg', img)
     else:
         for img_name in os.listdir(args.img):
             if os.path.splitext(img_name)[1].lower() not in ['.jpg', '.tif', '.png', '.jpeg']:
                 continue
             gt_path = os.path.join(args.gt, 'res_' + os.path.splitext(img_name)[0] + '.txt')
-            img = cv2.imread(os.path.join(args.img, img_name))
+            img = utils.cv2read(os.path.join(args.img, img_name))
+            # img = cv2.imread(os.path.join(args.img, img_name))
             font = cv2.FONT_HERSHEY_SIMPLEX
             with open(gt_path, 'r', encoding='utf-8') as fp:
                 for idx, line in enumerate(fp):
@@ -49,4 +54,5 @@ if __name__ == '__main__':
                                 font, 1, (255, 0, 0), 2)
                 # cv2.imshow('img', img)
                 # cv2.waitKey(0)
-                cv2.imwrite(os.path.join(args.gt, os.path.splitext(img_name)[0] + '_check.jpg'), img)
+                # cv2.imwrite(os.path.join(args.gt, os.path.splitext(img_name)[0] + '_check.jpg'), img)
+                utils.cv2save(img, os.path.join(args.gt, os.path.splitext(img_name)[0] + '_check.jpg'))

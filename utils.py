@@ -146,3 +146,11 @@ def width_sort(box_list):
 
 def box_sort(box):
     return box.u - box.r
+
+
+def cv2read(path, mode=cv2.IMREAD_COLOR):
+    return cv2.imdecode(np.fromfile(path, dtype=np.uint8), mode)
+
+
+def cv2save(img, path):
+    cv2.imencode(".jpg", img)[1].tofile(path)
