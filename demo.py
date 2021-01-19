@@ -166,6 +166,7 @@ class Demo:
                         cluster_recs.append([recs[box_id] for box_id in box_ids])
                     cluster_recs = sorted(cluster_recs, key=utils.width_sort, reverse=False)
                     bigger_idx = [b.idx for b in cluster_recs[-1]]
+                    '''
                     cluster_rec_ids = utils.cluster_recs_with_lr(recs, type='DBSCAN')
                     cluster_recs = []
                     for k in cluster_rec_ids.keys():
@@ -174,6 +175,8 @@ class Demo:
                     classified_recs = sorted(cluster_recs, key=utils.list_sort, reverse=True)
                     classified_recs = [sorted(l, key=utils.box_sort, reverse=False) for l in classified_recs]
                     output_recs = utils.read_out(classified_recs, recs, cover_threshold=0.3, bigger_idx=bigger_idx)
+                    '''
+                    output_recs = utils.read_out_2(recs, bigger_idx)
                     output_idxs = []
                     for crop_idx, rec in enumerate(output_recs):
                         crop_path = os.path.join(
@@ -190,6 +193,10 @@ class Demo:
                     with open(result_file_path, 'w', encoding='utf-8') as res:
                         for idx in output_idxs:
                             box = new_boxes[idx].reshape(-1).tolist()
+                            if idx in bigger_idx:
+                                box.append('big')
+                            else:
+                                box.append('small')
                             box = list(map(str, box))
                             result = ",".join(box)
                             res.write(result + "\n")

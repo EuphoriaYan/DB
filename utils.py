@@ -28,7 +28,7 @@ def trans_poly_to_rec(idx, poly):
 
 def cluster_recs_with_lr(recs, type='DBSCAN'):
     switch = {
-        'DBSCAN': DBSCAN(min_samples=1, eps=0.015),
+        'DBSCAN': DBSCAN(min_samples=1, eps=0.012),
         'MeanShift': MeanShift(bandwidth=0.3),
         'OPTICS': OPTICS(min_samples=1, eps=20),
         'Birch': Birch(n_clusters=None)
@@ -75,7 +75,7 @@ def cluster_recs_with_width(recs, type='Birch', n_clusters=None):
     return classified_box_ids
 
 
-def check_one_over_two(cur, nxt, recs, cover_threshold):
+def check_one_over_two(cur, nxt, recs, cover_threshold=0.3):
     cur_l = np.mean([i.l for i in cur])
     cur_r = np.mean([i.r for i in cur])
     nxt_l = np.mean([i.l for i in nxt])
@@ -97,6 +97,7 @@ def read_out(classified_recs, recs, cover_threshold, bigger_idx=None):
         if classified_recs[i]:
             # check if cur cluster is one-column and any of next clusters is two-column
             cur = classified_recs[i]
+            # weight = np.mean([0.5 * (i.r - i.l) + i.r for i in cur])
             flag = False
             for rec in cur:
                 if rec.idx in bigger_idx:
@@ -133,7 +134,128 @@ def read_out(classified_recs, recs, cover_threshold, bigger_idx=None):
     return output_idx
 
 
-def list_sort(box_list, cover_threshold=0.45):
+def check_cover(cur, nxt, cover_threshold=0.3):
+    cur_len = cur.r - cur.l
+    nxt_len = nxt.r - nxt.l
+    cover = min(cur.r, nxt.r) - max(cur.l, nxt.l)
+    if cover > cover_threshold * nxt_len and cover > cover_threshold * cur_len:
+        return True
+    else:
+        return False
+
+
+def check_two_column(cur, nxt, cover_threshold=0.3):
+    cur_len = cur.r - cur.l
+    nxt_len = nxt.r - nxt.l
+    cover = min(cur.r, nxt.r) - max(cur.l, nxt.l)
+    if cover > cover_threshold * nxt_len and cur_len > nxt_len:
+        return True
+    else:
+        return False
+
+
+def read_out_2(recs, bigger_idx=None, sort_hp=0.02):
+    output_idx = []
+    recs = sorted(recs, key=lambda x: x.r - sort_hp * x.u, reverse=True)
+    rec_cnt = len(recs)
+    vis = [False for _ in range(rec_cnt)]
+
+    while len(output_idx) < rec_cnt:
+        # cur = 0
+        for i in range(rec_cnt):
+            if vis[i]:
+                continue
+            cur = recs[i]
+            vis[i] = True
+            break
+        # one-column state, find the same position one-column, and find two-column between them.
+        if cur.idx in bigger_idx:
+            one_column_list = [cur]
+            for i in range(rec_cnt):
+                if vis[i]:
+                    continue
+                nxt = recs[i]
+                if nxt.idx not in bigger_idx:
+                    continue
+                if check_cover(cur, nxt, cover_threshold=0.7):
+                    one_column_list.append(nxt)
+                    vis[i] = True
+            two_column_list = []
+            for i in range(rec_cnt):
+                if vis[i]:
+                    continue
+                nxt = recs[i]
+                if nxt.idx in bigger_idx:
+                    continue
+                if check_one_over_two(one_column_list, [nxt], recs):
+                    two_column_list.append(nxt)
+                    vis[i] = True
+            while one_column_list or two_column_list:
+                cur_nxt = None
+                if one_column_list:
+                    output_idx.append(one_column_list.pop(0))
+                    if one_column_list:
+                        cur_nxt = one_column_list[0]
+                    else:
+                        cur_nxt = None
+                if two_column_list:
+                    if cur_nxt is not None:
+                        new_two_column_list = []
+                        for rec in two_column_list:
+                            if rec.u < cur_nxt.u:
+                                output_idx.append(rec)
+                            else:
+                                new_two_column_list.append(rec)
+                        two_column_list = new_two_column_list
+                    else:
+                        output_idx.extend(two_column_list)
+                        two_column_list = []
+        # two-column state, find the cover one-column, and find two-column been covered.
+        else:
+            one_column_list = []
+            two_column_list = [cur]
+            for i in range(rec_cnt):
+                if vis[i]:
+                    continue
+                nxt = recs[i]
+                if nxt.idx not in bigger_idx:
+                    continue
+                if check_two_column(nxt, cur):
+                    one_column_list.append(nxt)
+                    vis[i] = True
+            for i in range(rec_cnt):
+                if vis[i]:
+                    continue
+                nxt = recs[i]
+                if nxt.idx in bigger_idx:
+                    continue
+                if one_column_list and check_one_over_two(one_column_list, [nxt], recs):
+                    two_column_list.append(nxt)
+                    vis[i] = True
+
+            while one_column_list or two_column_list:
+                if one_column_list:
+                    cur_nxt = one_column_list[0]
+                else:
+                    cur_nxt = None
+                if two_column_list:
+                    if cur_nxt is not None:
+                        new_two_column_list = []
+                        for rec in two_column_list:
+                            if rec.u < cur_nxt.u:
+                                output_idx.append(rec)
+                            else:
+                                new_two_column_list.append(rec)
+                        two_column_list = new_two_column_list
+                    else:
+                        output_idx.extend(two_column_list)
+                        two_column_list = []
+                if one_column_list:
+                    output_idx.append(one_column_list.pop(0))
+    return output_idx
+
+
+def list_sort(box_list, cover_threshold=0.6):
     r = np.mean([b.r for b in box_list])
     length = np.mean([b.r - b.l for b in box_list])
     return r + length * cover_threshold
