@@ -10,7 +10,7 @@ import collections
 from PIL import Image
 from typing import List
 from matplotlib import pyplot as plt
-from sklearn.cluster import DBSCAN, KMeans, MeanShift, OPTICS, Birch
+from sklearn.cluster import DBSCAN, KMeans, MeanShift, OPTICS, Birch, SpectralClustering, AgglomerativeClustering
 
 
 # (n, 2) poly -> box_dict
@@ -42,29 +42,34 @@ def cluster_recs_with_lr(recs, type='DBSCAN'):
     recs_min, recs_max = recs_data.min(), recs_data.max()
     recs_data = (recs_data - recs_min) / (recs_max - recs_min)
     labels = cluster.fit_predict(recs_data)
-    '''
-    plt.scatter(recs_data[:, 0], recs_data[:, 1], s=1, c=labels)
-    plt.show()
-    '''
+    # plt.scatter(recs_data[:, 0], recs_data[:, 1], s=1, c=labels)
+    # plt.show()
     classified_box_ids = collections.defaultdict(list)
     for idx, label in enumerate(labels):
         classified_box_ids[label].append(idx)
     return classified_box_ids
 
 
-def cluster_recs_with_width(recs, type='Birch', n_clusters=None):
+def cal_dis(x1, y1, x2, y2):
+    return np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+
+def cluster_recs_with_width(recs, boxes, type='Birch', n_clusters=None):
     switch = {
-        'Kmeans': KMeans(n_clusters=n_clusters),
-        'Birch': Birch(n_clusters=n_clusters)
+        'KMeans': KMeans(n_clusters=n_clusters),
+        'Birch': Birch(n_clusters=n_clusters),
+        'SpectralClustering': SpectralClustering(n_clusters=n_clusters),
+        'AgglomerativeClustering_ward': AgglomerativeClustering(n_clusters=n_clusters, linkage='ward'),
+        'AgglomerativeClustering_complete': AgglomerativeClustering(n_clusters=n_clusters, linkage='complete'),
     }
     try:
         cluster = switch[type]
     except ValueError as e:
-        raise ValueError('type should be DBSCAN, MeanShift, OPTICS or Birch')
-    recs_data = [rec.r - rec.l for rec in recs]
+        raise ValueError('type should be KMeans, Birch, SpectralClustering, AgglomerativeClustering')
+    recs_data = [cal_dis(box[0][0], box[0][1], box[1][0], box[1][1]) for box in boxes]
     recs_data = np.array(recs_data).reshape(-1, 1)
-    recs_max = np.max(recs_data)
-    recs_data = recs_data / recs_max * 5
+    # recs_max = np.max(recs_data)
+    # recs_data = recs_data / recs_max * 5
     labels = cluster.fit_predict(recs_data)
     # plt.scatter(recs_data[:], recs_data[:], s=1, c=labels)
     # plt.show()

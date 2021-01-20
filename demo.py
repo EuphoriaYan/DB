@@ -159,7 +159,12 @@ class Demo:
                     if len(new_boxes) == 0:
                         return
                     recs = [utils.trans_poly_to_rec(idx, box) for idx, box in enumerate(new_boxes)]
-                    cluster_rec_ids = utils.cluster_recs_with_width(recs, type='Birch', n_clusters=2)
+                    cluster_rec_ids = utils.cluster_recs_with_width(
+                        recs,
+                        new_boxes,
+                        type='AgglomerativeClustering_ward',
+                        n_clusters=2
+                    )
                     cluster_recs = []
                     for k in cluster_rec_ids.keys():
                         box_ids = cluster_rec_ids[k]

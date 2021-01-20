@@ -31,16 +31,21 @@ if __name__ == '__main__':
     gt_path = args.gt_path
 
     (imgs_root, _) = os.path.split(imgs_path)
+    print('image root: {}'.format(imgs_root))
 
     train_imgs_path = os.path.join(imgs_root, 'train_images')
     train_gts_path = os.path.join(imgs_root, 'train_gts')
     os.makedirs(train_imgs_path, exist_ok=True)
     os.makedirs(train_gts_path, exist_ok=True)
+    print('train imgs path: {}'.format(train_imgs_path))
+    print('train gts path: {}'.format(train_gts_path))
 
     test_imgs_path = os.path.join(imgs_root, 'test_images')
     test_gts_path = os.path.join(imgs_root, 'test_gts')
     os.makedirs(test_imgs_path, exist_ok=True)
     os.makedirs(test_gts_path, exist_ok=True)
+    print('test imgs path: {}'.format(test_imgs_path))
+    print('test gts path: {}'.format(test_gts_path))
 
     train_imgs_list_path = os.path.join(imgs_root, 'train_list.txt')
     test_imgs_list_path = os.path.join(imgs_root, 'test_list.txt')
