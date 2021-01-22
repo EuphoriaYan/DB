@@ -30,6 +30,9 @@ if __name__ == '__main__':
     imgs_path = args.imgs_path
     gt_path = args.gt_path
 
+    if imgs_path.endswith('/') or imgs_path.endswith('\\'):
+        imgs_path = imgs_path[:-1]
+
     (imgs_root, _) = os.path.split(imgs_path)
     print('image root: {}'.format(imgs_root))
 
@@ -91,3 +94,5 @@ if __name__ == '__main__':
                 for record in records:
                     fp.write(record + '\n')
             copy(timg_real_path, dst_path)
+
+
