@@ -5,3 +5,4 @@ python train.py \
 experiments/seg_detector/fakepages_resnet18_deform_thre.yaml \
 --resume models/td500_resnet18 \
 --num_gpus 2 \
+--validate \

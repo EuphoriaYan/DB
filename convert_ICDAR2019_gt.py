@@ -87,18 +87,18 @@ if __name__ == '__main__':
 
     total_cnt = len(total_timgs)
 
-    test_imgs_list = random.choices(total_timgs, k=total_cnt // 200)
+    test_imgs_list = random.choices(total_timgs, k=total_cnt // 100)
     test_imgs_set = set(test_imgs_list)
     train_imgs_list = [img for img in total_timgs if img not in test_imgs_set]
     train_imgs_set = set(train_imgs_list)
 
     with open(train_imgs_list_path, 'w', encoding='utf-8') as fp:
         for timg in train_imgs_list:
-            fp.write(timg + '\n')
+            fp.write(os.path.basename(timg) + '\n')
 
     with open(test_imgs_list_path, 'w', encoding='utf-8') as fp:
         for timg in test_imgs_list:
-            fp.write(timg + '\n')
+            fp.write(os.path.basename(timg) + '\n')
 
     for timg in total_timgs:
         gt_file = os.path.join(gt_path, os.path.splitext(os.path.basename(timg))[0] + '.xml')
