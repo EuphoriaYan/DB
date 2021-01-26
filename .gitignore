@@ -110,6 +110,7 @@ log.txt # From the naive evaluating of ICDAR15
 
 # specific directory
 datasets
+test_dataset
 evaluation
 experiments/backup
 lib
