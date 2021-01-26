@@ -10,11 +10,11 @@ define:
         class: Builder
         model: SegDetectorModel
         model_args:
-          backbone: deformable_resnet18
+          backbone: deformable_resnet50
           decoder: SegDetector
           decoder_args:
             adaptive: True
-            in_channels: [ 64, 128, 256, 512 ]
+            in_channels: [ 256, 512, 1024, 2048 ]
             k: 50
           loss_class: L1BalanceCELoss
 
