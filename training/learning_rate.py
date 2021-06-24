@@ -116,7 +116,7 @@ class BuitlinLearningRate(Configurable):
 
     def get_learning_rate(self, epoch, step=None):
         if self.scheduler is None:
-            raise 'learning rate not ready(prepared with optimizer) '
+            raise Exception('learning rate not ready(prepared with optimizer) ')
         self.scheduler.last_epoch = epoch
         # return value of gt_lr is a list,
         # where each element is the corresponding learning rate for a

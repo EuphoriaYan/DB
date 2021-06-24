@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-
+# 用于对像素级别的二分类样本不平衡进行优化的CE Loss
 class BalanceCrossEntropyLoss(nn.Module):
     '''
     Balanced cross entropy loss.

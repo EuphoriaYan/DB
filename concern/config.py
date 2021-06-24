@@ -10,7 +10,9 @@ class Config(object):
         pass
 
     def load(self, conf):
+        # 读取conf文件，anyconfig会自动分析文件后缀与结构
         conf = anyconfig.load(conf)
+        # munchify的作用是对字典加一个封装，可以通过d['k']的方法访问，也可以通过d.k的方法访问
         return munch.munchify(conf)
 
     def compile(self, conf, return_packages=False):

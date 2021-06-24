@@ -92,10 +92,12 @@ class Demo:
         else:
             self.device = torch.device('cpu')
 
+    # 建立模型
     def init_model(self):
         model = self.structure.builder.build(self.device)
         return model
 
+    # 读取ckpt
     def resume(self, model, path):
         if not os.path.exists(path):
             print("Checkpoint not found: " + path)
@@ -105,6 +107,7 @@ class Demo:
         model.load_state_dict(states, strict=False)
         print("Resumed from " + path)
 
+    # 调整图片大小
     def resize_image(self, img):
         height, width, _ = img.shape
         if height < width:
@@ -116,7 +119,9 @@ class Demo:
         resized_img = cv2.resize(img, (new_width, new_height))
         return resized_img
 
+    # 读取图片
     def load_image(self, image_path):
+        # 可以处理中文路径
         img = utils.cv2read(image_path).astype('float32')
         # img = cv2.imread(image_path, cv2.IMREAD_COLOR).astype('float32')
         original_shape = img.shape[:2]

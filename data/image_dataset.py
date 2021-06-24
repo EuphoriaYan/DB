@@ -9,7 +9,7 @@ import glob
 from concern.config import Configurable, State
 import math
 
-
+# 图片数据集
 class ImageDataset(data.Dataset, Configurable):
     r'''Dataset reading from images.
     Args:

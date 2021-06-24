@@ -177,19 +177,19 @@ class L1BalanceCELoss(nn.Module):
     DiceLoss on `thresh_binary`.
     Note: The meaning of inputs can be figured out in `SegDetectorLossBuilder`.
     '''
-
+    # 可以看到，这个loss实际上就是Balanced CE Loss，MaskL1Loss，DiceLoss三者结合，分别用在不同的层级上
     def __init__(self, eps=1e-6, l1_scale=10, bce_scale=5):
         super(L1BalanceCELoss, self).__init__()
         from .dice_loss import DiceLoss
         from .l1_loss import MaskL1Loss
         from .balance_cross_entropy_loss import BalanceCrossEntropyLoss
-        self.dice_loss = DiceLoss(eps=eps)
-        self.l1_loss = MaskL1Loss()
-        self.bce_loss = BalanceCrossEntropyLoss()
+        self.dice_loss = DiceLoss(eps=eps)  # 二值化图的Loss，
+        self.l1_loss = MaskL1Loss()  # 比较容易理解的Loss，只需要预测部分位置，剩余位置不管
+        self.bce_loss = BalanceCrossEntropyLoss()  # 用于对像素级别的二分类样本不平衡进行优化的CE Loss
 
-        self.l1_scale = l1_scale
-        self.bce_scale = bce_scale
-
+        self.l1_scale = l1_scale  # l1 loss的倍率，默认为10
+        self.bce_scale = bce_scale  # bce loss的倍率，默认为5
+    # pred分别是binary，thresh，thresh_binary，batch则包含image，gt，mask，thresh_map，thresh_mask
     def forward(self, pred, batch):
         bce_loss = self.bce_loss(pred['binary'], batch['gt'], batch['mask'])
         metrics = dict(bce_loss=bce_loss)

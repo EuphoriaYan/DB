@@ -70,7 +70,7 @@ class Trainer:
             self.total = len(train_data_loader)
 
             for batch in train_data_loader:
-                self.update_learning_rate(optimizer, epoch, self.steps)
+                self.update_learning_rate(optimizer, epoch, self.steps)  # 更新lr
 
                 self.logger.report_time("Data loading")
 
@@ -105,14 +105,15 @@ class Trainer:
 
     def train_step(self, model, optimizer, batch, epoch, step, **kwards):
         optimizer.zero_grad()
-
+        # 一个batch分别有image(batch_size,3,640,640),gt(batch_size,1,640,640),mask(batch_size,640,640),thresh_map(batch_size,640,640),thresh_mask(batch_size,640,640)
         results = model.forward(batch, training=True)
         if len(results) == 2:
             l, pred = results
             metrics = {}
         elif len(results) == 3:
             l, pred, metrics = results
-
+        else:
+            raise ValueError
         if isinstance(l, dict):
             line = []
             loss = torch.tensor(0.).cuda()

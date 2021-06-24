@@ -11,8 +11,9 @@ import decoders
 class BasicModel(nn.Module):
     def __init__(self, args):
         nn.Module.__init__(self)
-
+        # backbone -- 特征提取网络，根据设定，为Res18或Res50（带deformable）
         self.backbone = getattr(backbones, args['backbone'])(**args.get('backbone_args', {}))
+        # decoder --  检测器，SegDetector，输入ResNet特征，输出置信度，阈值，阈值二维化
         self.decoder = getattr(decoders, args['decoder'])(**args.get('decoder_args', {}))
 
     def forward(self, data, *args, **kwargs):
@@ -29,7 +30,7 @@ def parallelize(model, distributed, local_rank):
     else:
         return nn.DataParallel(model)
 
-
+# 真正使用的网络结构
 class SegDetectorModel(nn.Module):
     def __init__(self, args, device, distributed: bool = False, local_rank: int = 0):
         super(SegDetectorModel, self).__init__()
@@ -38,7 +39,7 @@ class SegDetectorModel(nn.Module):
         self.model = BasicModel(args)
         # for loading models
         self.model = parallelize(self.model, distributed, local_rank)
-        self.criterion = SegDetectorLossBuilder(
+        self.criterion = SegDetectorLossBuilder(  # 构筑Loss函数，使用的Loss为L1BalanceCELoss
             args['loss_class'], *args.get('loss_args', []), **args.get('loss_kwargs', {})).build()
         self.criterion = parallelize(self.criterion, distributed, local_rank)
         self.device = device
@@ -54,7 +55,7 @@ class SegDetectorModel(nn.Module):
         else:
             data = batch.to(self.device)
         data = data.float()
-        pred = self.model(data, training=self.training)
+        pred = self.model(data, training=self.training)  # 如果是训练，返回binary，thresh，thresh_binary；如果是测试只返回binary
 
         if self.training:
             for key, value in batch.items():

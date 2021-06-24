@@ -57,18 +57,24 @@ def main():
     args = vars(args)
     args = {k: v for k, v in args.items() if v is not None}
 
+    # Torch分布式训练，据称即使是单电脑多卡，也比data_parallel快，使用nccl后端（需要部署）
     if args['distributed']:
         torch.cuda.set_device(args['local_rank'])
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
 
     conf = Config()
+    # 通过yaml文件，生成对应的配置参数，experiment里包含了name,class,structure,train,validation,logger,evaluation(=valid)信息
     experiment_args = conf.compile(conf.load(args['exp']))['Experiment']
+    # 使用命令行参数覆盖一些默认参数，也就是命令行参数优先级高于默认参数
     experiment_args.update(cmd=args)
+    # 通过参数表构筑实验，experiment里包含distributed,local_rank(分布式时有用),evaluation(训练时为空),logger,states,structure,train,validation
     experiment = Configurable.construct_class_from_config(experiment_args)
 
     if not args['print_config_only']:
         torch.backends.cudnn.benchmark = args['benchmark']
+        # 构筑训练器
         trainer = Trainer(experiment)
+        # 开始训练
         trainer.train()
 
 
